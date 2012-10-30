@@ -7,6 +7,12 @@
 #define IS_FLAG(flag)  \
 	strcmp(argv[i], flag)
 
+void
+printUsage() {
+	printf("sgdr_tsim -S <.S file> -m <.m file> -r <.r file> [-xgs]\n");
+	printf("sgdr_tsim -h\n\n");
+}
+
 int 
 main(int argc, char** argv) {
 	
@@ -16,14 +22,20 @@ main(int argc, char** argv) {
 	int fStep = 0;
 	int status = 0;
 	char *pchInAsmFile = NULL;
+	char *pchInitMemFile = NULL;
+	char *pchInitRegFile = NULL;
 	FILE *fpInAsm = NULL;
- 
+
+
+	if(argc == 1) {
+		printUsage();
+	} 
 	/* Parse options
 	 * -x: start GUI
 	 * -g:   Debugging Mode
      * -s:   Step Mode
 	 */
-	for (i = 0; i < argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if(argv[i][0] == '-') {
 			switch(argv[i][1]) {
 				case 'x':
@@ -35,12 +47,28 @@ main(int argc, char** argv) {
 				case 's':
 					fStep = 1;
 					break;
+				case 'r':
+					i++;
+					pchInitRegFile = argv[i];
+					break;
+				case 'm':
+					i++;
+					pchInitMemFile = argv[i];
+					break;
+				case 'S':
+					i++;
+					pchInAsmFile = argv[i];
+					break;
+				case 'h':
+					printUsage();
+					return 0;
 				default:
 					printf("error: Unknown Option: %s\n", argv[i]);
 					return -1;
 			}
 		} else {
-			pchInAsmFile = argv[i];
+			printf("error: Unknown Option: %s\n", argv[i]);
+			return -1;
 		}
 	}
 
