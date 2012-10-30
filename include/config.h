@@ -1,0 +1,18 @@
+#ifdef CONFIG_H
+#define CONFIG_H
+
+#define	FP_ADDSUB_CYCLE		3
+#define FP_MULTIPLY_CYCLE	6
+#define FP_DIVISION_CYCLE	13
+#define LOAD_CYCLE			2
+#define STORE_CYCLE			2
+#define INTEGER_CYCLE		1
+
+#define FP_ADDSUB_PIPELINED		1
+#define FP_MULTIPLY_PIPELINED	0
+#define FP_DIVISION_PIPELINED	1
+#define LOAD_PIPELINED			1
+#define STORE_PIPELINED			1
+#define INTEGER_PIPELINED		1
+
+#endif
