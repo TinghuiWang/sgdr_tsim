@@ -33,4 +33,15 @@
 #define STORE_PIPELINED			1
 #define INTEGER_PIPELINED		1
 
+//OPCODES
+#define L_D		0
+#define MUL_D	1
+#define ADD_D	2
+#define S_D		3
+#define SUB_D	4
+#define ADDI	5
+#define SUBI	6
+#define BNEZ	7
+#define NOP		8
+
 #endif
