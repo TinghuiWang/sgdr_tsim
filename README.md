@@ -1,4 +1,4 @@
 sgdr_tsim
 =========
 
-SGDR Tomasolu Simulator
+SGDR Simulator
