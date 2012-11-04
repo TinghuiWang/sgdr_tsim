@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifdef CONFIG_H
+#ifndef CONFIG_H
 #define CONFIG_H
 
 #define	FP_ADDSUB_CYCLE		3
@@ -34,14 +34,14 @@
 #define INTEGER_PIPELINED		1
 
 //OPCODES
-#define L_D		0
-#define MUL_D	1
-#define ADD_D	2
-#define S_D		3
-#define SUB_D	4
-#define ADDI	5
-#define SUBI	6
-#define BNEZ	7
-#define NOP		8
+#define OP_L_D		0
+#define OP_MUL_D	1
+#define OP_ADD_D	2
+#define OP_S_D		3
+#define OP_SUB_D	4
+#define OP_ADDI		5
+#define OP_SUBI		6
+#define OP_BNEZ		7
+#define OP_NOP		8
 
 #endif
