@@ -33,7 +33,11 @@
 #define STORE_PIPELINED			1
 #define INTEGER_PIPELINED		1
 
+#define FP_REG_MAX		16
+#define I_REG_MAX		16
+
 //OPCODES
+#define OP_MEM		-1 //Indicates only memory
 #define OP_L_D		0
 #define OP_MUL_D	1
 #define OP_ADD_D	2
