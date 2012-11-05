@@ -28,21 +28,15 @@
 
 typedef struct
 {
-	int opcode;
-	int operand[3];
+	int iOpcode;
+	int rgiOperand[3];
 } inst_entry;
 
-typedef struct
-{
-	char label[25];
-	int address;
-} sym_entry;
+extern int rgiReg[I_REG_MAX];
+extern float rgfReg[FP_REG_MAX];
 
-extern sym_entry *symbol_table;
-extern long int *memory_location;
-
-
-void get_memory_locations(FILE *infile);
-inst_entry inst_fetch(int address, FILE *mem_file);
+void get_memory_locations(FILE *fpAsm);
+void init_registers(FILE *fpFReg, FILE *fpIReg);
+inst_entry inst_fetch(int iAddr, FILE *fpAsm);
 
 #endif
