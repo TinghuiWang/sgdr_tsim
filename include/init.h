@@ -28,12 +28,40 @@
 
 typedef struct
 {
+	char busy;
+	int iOpcode;
+	int dest;
+	int src1;
+	int src2;
+	int state;
+	char entered_wr_this_cycle;
+	float value;
+	char done;
+} ROB_ENTRY;
+
+typedef struct
+{
 	int iOpcode;
 	int rgiOperand[3];
 } inst_entry;
 
-extern int rgiReg[I_REG_MAX];
-extern float rgfReg[FP_REG_MAX];
+typedef struct
+{
+  char busy;
+  ROB_ENTRY * ptr;
+  int value;
+} int_reg_entry;
+
+typedef struct
+{
+  char busy;
+  ROB_ENTRY * ptr;
+  int value;
+} fp_reg_entry;
+
+extern long int *rgliMemLocation;
+extern int_reg_entry rgiReg[I_REG_MAX];
+extern fp_reg_entry rgfReg[FP_REG_MAX];
 
 void get_memory_locations(FILE *fpAsm);
 void init_registers(FILE *fpFReg, FILE *fpIReg);

@@ -15,8 +15,8 @@ long int *rgliMemLocation;
 int iMemMax = 100;
 int iMemCur = 0;
 
-int rgiReg[I_REG_MAX];
-float rgfReg[FP_REG_MAX];
+int_reg_entry rgiReg[I_REG_MAX];
+fp_reg_entry rgfReg[FP_REG_MAX];
 
 void get_memory_locations(FILE *fpAsm)
 {
@@ -62,7 +62,7 @@ void init_registers(FILE *fpFReg, FILE *fpIReg)
 		pszReg = strtok(szLine, " ");
 		pszVal = strtok(NULL, " \n");
 		pszReg = strtok(pszReg, "F");
-		rgfReg[atoi(pszReg)] = atoi(pszVal);
+		rgfReg[atoi(pszReg)].value = atoi(pszVal);
 	}
 
 	while(!feof(fpIReg))
@@ -71,7 +71,7 @@ void init_registers(FILE *fpFReg, FILE *fpIReg)
 		pszReg = strtok(szLine, " ");
 		pszVal = strtok(NULL, " \n");
 		pszReg = strtok(pszReg, "R ");
-		rgiReg[atoi(pszReg)] = atoi(pszVal);
+		rgiReg[atoi(pszReg)].value = atoi(pszVal);
 	}
 }
 
@@ -139,7 +139,6 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	{
 		temp.rgiOperand[0] = atoi(pszName);
 	}
-
 	else
 	{
 		if(rgszOperand[0] != NULL)

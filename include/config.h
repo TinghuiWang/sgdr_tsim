@@ -19,11 +19,22 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define TRUE			1
+#define FALSE			0
+
+#define NUM_ROB_ENTRIES		32
+
+#define FP_ADD_RS		4
+#define FP_MULT_RS		3
+#define LOAD_RS			4
+#define STORE_RS		4
+#define INTEGER_RS		4
+
 #define	FP_ADDSUB_CYCLE		3
 #define FP_MULTIPLY_CYCLE	6
 #define FP_DIVISION_CYCLE	13
-#define LOAD_CYCLE			2
-#define STORE_CYCLE			2
+#define LOAD_CYCLE		2
+#define STORE_CYCLE		1
 #define INTEGER_CYCLE		1
 
 #define FP_ADDSUB_PIPELINED		1
@@ -47,5 +58,13 @@
 #define OP_SUBI		6
 #define OP_BNEZ		7
 #define OP_NOP		8
+#define OP_DIV_D	9
+
+//STATES
+#define ISSUED		0
+#define EXECUTE		1
+#define WRITE_RES	2
+#define COMMIT		3
+#define WAITING		4
 
 #endif
