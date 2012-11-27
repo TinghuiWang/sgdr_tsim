@@ -28,19 +28,6 @@
 
 typedef struct
 {
-	char busy;
-	int iOpcode;
-	int dest;
-	int src1;
-	int src2;
-	int state;
-	char entered_wr_this_cycle;
-	float value;
-	char done;
-} ROB_ENTRY;
-
-typedef struct
-{
 	int iOpcode;
 	int rgiOperand[3];
 } inst_entry;
