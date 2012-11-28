@@ -720,19 +720,25 @@ int assign_fp_mult(inst_entry instruction) // need special case for divide
 }
 
 //***********************assign_to_rs()***********************
-int assign_to_rs(inst_entry instruction)
+int assign_to_rs(ROB_ENTRY *rob_ent)
 {
-  if(instruction.iOpcode == OP_L_D)
-    return assign_load(instruction);
-  else if(instruction.iOpcode == OP_S_D)
-    return assign_store(instruction);
-  else if(instruction.iOpcode == OP_ADDI || instruction.iOpcode == OP_SUBI 
-    || instruction.iOpcode == OP_BNEZ) // branch treated as int
-    return assign_int(instruction);
-  else if(instruction.iOpcode == OP_ADD_D || instruction.iOpcode == OP_SUB_D)
-    return assign_fp_add(instruction);
-  else if(instruction.iOpcode == OP_MUL_D || instruction.iOpcode == OP_DIV_D)
-    return assign_fp_mult(instruction);
+	int i;
+	i = utGetUnitTypeForInstr(rob_ent->pInst);
+	switch(i) { 
+	case UNIT_LOAD:
+    	return assign_load(rob_ent);
+	case UNIT_STORE:
+    	return assign_store(rob_ent);
+	case UNIT_INT:
+    	return assign_int(rob_ent);
+	case UNIT_FP_ADD:
+    	return assign_fp_add(rob_ent);
+	case UNIT_FP_MULT:
+    	return assign_fp_mult(rob_ent);
+	default:
+		printf("Err: unknown Unit %d\n", i);
+		return 0; 
+	}
 }
 
 /********************************************************************************************
