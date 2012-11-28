@@ -18,19 +18,12 @@
 
 #include "fu.h"
 
-LOAD_UNIT load_unit;
-STORE_UNIT store_unit;
-INT_UNIT int_unit;
-FP_ADD_UNIT fp_add_unit;
-FP_MULT_UNIT fp_mult_unit;
 
-ROB_ENTRY robs[NUM_ROB_ENTRIES];
+
+// ROB_ENTRY robs[NUM_ROB_ENTRIES];
 int rob_head = 0;
 int rob_tail = 0;
-
 int avail_rob_entries = NUM_ROB_ENTRIES;
-extern int PC;
-extern int branch;
 
 /********************************************************************************************
 *
@@ -40,17 +33,22 @@ extern int branch;
 //***********************state()***********************
 char * state(int state)
 {
-    switch(state)
-    {
-      case(0): return "ISSUED";
-      case(1): return "EXECUTE";
-      case(2): return "WRITE RES";
-      case(3): return "COMMIT";
-      case(4): return "WAITING";
+	switch(state) {
+	case ST_ISSUED: 
+		return "ISSUED";
+	case ST_EXECUTE: 
+		return "EXECUTE";
+	case ST_WRITE_BACK: 
+		return "WRITE BACK";
+	case ST_COMMIT: 
+		return "COMMIT";
+	case ST_WAITING: 
+		return "WAITING";
     }
 }
 
 //***********************op()***********************
+// To-Do: Change Case Params to Global Definition
 char * op(int op)
 {
     switch(op)
@@ -1079,6 +1077,7 @@ int update_rs()
 }
 
 //***********************update_rob()***********************
+/*
 int update_rob() // TODO: need to seperate ROB register status 'file' from actual RF on write_result and commit
 {
   if(robs[rob_head].busy == 1 && robs[rob_head].state == WRITE_RES)
@@ -1111,3 +1110,4 @@ int update_rob() // TODO: need to seperate ROB register status 'file' from actua
     }
   }
 }
+*/

@@ -22,7 +22,7 @@
 #define TRUE			1
 #define FALSE			0
 
-#define NUM_ROB_ENTRIES		32
+#define NR_ROB_ENT		32
 
 #define FP_ADD_RS		4
 #define FP_MULT_RS		3
@@ -49,22 +49,23 @@
 
 //OPCODES
 #define OP_MEM		-1 //Indicates only memory
-#define OP_L_D		0
-#define OP_MUL_D	1
-#define OP_ADD_D	2
-#define OP_S_D		3
-#define OP_SUB_D	4
-#define OP_ADDI		5
-#define OP_SUBI		6
-#define OP_BNEZ		7
-#define OP_NOP		8
-#define OP_DIV_D	9
+#define OP_L_D		0x80
+#define OP_MUL_D	0x81
+#define OP_ADD_D	0x82
+#define OP_S_D		0x84
+#define OP_SUB_D	0x88
+#define OP_DIV_D	0x90
+#define OP_L		0x80
+#define OP_ADDI		0x00
+#define OP_SUBI		0x01
+#define OP_BNEZ		0x02
+#define OP_NOP		0x04
 
 //STATES
 #define ISSUED		0
 #define EXECUTE		1
 #define WRITE_RES	2
-#define COMMIT		3
-#define WAITING		4
+#define COMMIT		4
+#define WAITING		8
 
 #endif

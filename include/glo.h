@@ -20,8 +20,29 @@
 #ifdef GLO_H
 #define GLO_H
 
-// Instruction Queue
-extern void* arInsQ;
+#include "config.h"
+#include "init.h"
+#include "fu.h"
+#include "rob.h"
+
+// Architecture Register File
+extern int_reg_entry rgiReg[I_REG_MAX];
+extern fp_reg_entry rgfReg[FP_REG_MAX];
+
+// Re-Order Buffer
+extern ROB_ENTRY arROB[NR_ROB_ENT];
+extern int iROBAvailEntry = NR_ROB_ENT;
+
+// Function Units
+extern LOAD_UNIT load_unit;
+extern STORE_UNIT store_unit;
+extern INT_UNIT int_unit;
+extern FP_ADD_UNIT fp_add_unit;
+extern FP_MULT_UNIT fp_mult_unit;
+
+// Temporary Variables
+extern int PC;
+extern int branch;
 extern void* pExUnitHeader;
 extern int rInt[NR_REG_INT];
 extern float rFloat[NR_REG_FP];

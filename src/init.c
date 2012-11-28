@@ -15,9 +15,6 @@ long int *rgliMemLocation;
 int iMemMax = 100;
 int iMemCur = 0;
 
-int_reg_entry rgiReg[I_REG_MAX];
-fp_reg_entry rgfReg[FP_REG_MAX];
-
 void get_memory_locations(FILE *fpAsm)
 {
 	char szInstruction[50];

@@ -43,7 +43,7 @@ typedef struct
 {
   char busy;
   ROB_ENTRY * ptr;
-  int value;
+  double value;
 } fp_reg_entry;
 
 extern long int *rgliMemLocation;

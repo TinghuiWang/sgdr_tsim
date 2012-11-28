@@ -45,23 +45,15 @@ typedef struct rob_entry {
 	char fSpec;
 	char fSb;
 	char fDesValid;
-	unsigned long ulRegValue;
-	ARF_ENTRY *pARF;
+	int iRegValue;
+	double fRegValue;
+	void *pARF;
 	// For Simulation only
 	int iIndex;
+	char fFloatInt;
+	char entered_wr_this_cycle;
+	char available_next_cycle;
 	inst_entry *pInst;
 } ROB_ENTRY;
-
-/*
- * ARF_ENTRY: Architecture Register File
- */
-
-typedef struct ARF_entry {
-	unsigned long ulRegValue;
-	char fBusy;
-	ROB_ENTRY *pRobEntry;
-	/* For Simulation Only */
-	int iIndex;
-} ARF_ENTRY; 
 
 #endif

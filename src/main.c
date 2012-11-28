@@ -26,12 +26,36 @@
 #include "config.h"
 #include "init.h"
 #include "fu.h"
+#include "rob.h"
 
 #define IS_FLAG(flag)  \
 	strcmp(argv[i], flag)
 
 int PC = 0;
 char branch = 0;
+
+/* *********************************** */
+/*           Global Variables          */
+/* *********************************** */
+
+// Architecture Register File
+int_reg_entry rgiReg[I_REG_MAX];
+fp_reg_entry rgfReg[FP_REG_MAX];
+
+// Function Units
+LOAD_UNIT load_unit;
+STORE_UNIT store_unit;
+INT_UNIT int_unit;
+FP_ADD_UNIT fp_add_unit;
+FP_MULT_UNIT fp_mult_unit;
+
+// Re-Order Buffer
+ROB_ENTRY arROB[NR_ROB_ENT];
+int iROBAvailEntry = NR_ROB_ENT;
+
+/* ************************************ */
+/*         Functions & Procedures       */
+/* ************************************ */
 
 void
 printUsage() {
@@ -50,6 +74,7 @@ void simulate(FILE *fpInAsm)
   for(i = 0; i < 6; i++) // TODO: needs to be changed to while(!end of program) loop
   {
     printf("\n\n**************************** CYCLE=%d | PC=%d ****************************\n\n", cycles, PC);
+/*
     if(stalled)
     {
       //if so, try and issue the stalled instruction again
@@ -83,14 +108,20 @@ void simulate(FILE *fpInAsm)
     }
     
 update:
-    update_rs(); // update reservation stations, calls write_result() if execution is complete
-    update_rob(); // checks to see if the head of the rob is ready to commit
-    clear_flags(); // resets 'parallel' flags to 0
+*/
+	// Update Reservation Station
+    update_rs(); 
+	// Update ReOrder Buffer
+    update_rob();
+	// Clear Temporary Flgas
+    clear_flags(); 
+	// Print Debug Message
     print_reg_status();
     print_rob_status();
     print_rs_status();
-    cycles++; // move on to next cycle
-    PC+=4; // only other place this can be changed is when a branch enters write_result phase
+
+	// Move on to Next Cycle
+    cycles++;
   }
 }
 
@@ -115,7 +146,7 @@ int main(int argc, char** argv)
   /* Parse options
     * -x: start GUI
     * -g:   Debugging Mode
-* -s:   Step Mode
+	* -s:   Step Mode
     */
   for (i = 1; i < argc; i++) {
     if(argv[i][0] == '-') {
@@ -162,6 +193,7 @@ int main(int argc, char** argv)
 
   fpInRegFP = fopen("resources/fRegisters.txt", "r");
   fpInRegInt = fopen("resources/iRegisters.txt", "r");
+
   init_registers(fpInRegFP, fpInRegInt);
 
   init_fu(); // zeros out data struct
