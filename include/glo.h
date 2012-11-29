@@ -33,6 +33,9 @@ extern fp_reg_entry rgfReg[FP_REG_MAX];
 extern ROB_ENTRY arROB[NR_ROB_ENT];
 extern int iROBAvailEntry = NR_ROB_ENT;
 
+// Input file
+extern FILE *fpInAsm;
+
 // Function Units
 extern LOAD_UNIT load_unit;
 extern STORE_UNIT store_unit;

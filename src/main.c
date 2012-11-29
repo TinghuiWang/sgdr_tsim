@@ -32,7 +32,7 @@
 	strcmp(argv[i], flag)
 
 int PC = 0;
-char branch = 0;
+int branch = 0;
 
 /* *********************************** */
 /*           Global Variables          */
@@ -52,6 +52,9 @@ FP_MULT_UNIT fp_mult_unit;
 // Re-Order Buffer
 ROB_ENTRY arROB[NR_ROB_ENT];
 int iROBAvailEntry = NR_ROB_ENT;
+
+// Input file
+FILE *fpInAsm = NULL;
 
 /* ************************************ */
 /*         Functions & Procedures       */
@@ -135,7 +138,6 @@ int main(int argc, char** argv)
   char *pchInAsmFile = NULL;
   char *pchInitMemFile = NULL;
   char *pchInitRegFile = NULL;
-  FILE *fpInAsm = NULL;
   FILE *fpInRegFP = NULL;
   FILE *fpInRegInt = NULL;
   FILE *fpInMem = NULL;

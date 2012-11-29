@@ -25,21 +25,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "config.h"
+#include "rob.h"
 
-typedef struct
+typedef struct inst_entry
 {
 	int iOpcode;
 	int rgiOperand[3];
 } inst_entry;
 
-typedef struct
+typedef struct inst_reg_entry
 {
   char busy;
   ROB_ENTRY * ptr;
   int value;
 } int_reg_entry;
 
-typedef struct
+typedef struct fp_reg_entry
 {
   char busy;
   ROB_ENTRY * ptr;

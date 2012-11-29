@@ -16,8 +16,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef FU_H
+#define FU_H
+
+#include "glo.h"
 #include "config.h"
 #include "init.h"
+#include "rob.h"
 
 typedef struct res_station
 {
@@ -91,9 +96,15 @@ extern FP_MULT_UNIT fp_mult_unit;
 
 // prototypes
 int init_fu();
-int assign_to_rs(inst_entry instruction);
+int assign_to_rs(ROB_ENTRY * robe);
 int update_rs();
 char * op(int op);
 
+// external vars
+extern int PC;
+extern int branch;
+extern ROB_ENTRY arROB[NR_ROB_ENT];
+extern FILE *fpInAsm;
 
+#endif
 

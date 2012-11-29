@@ -53,7 +53,7 @@ typedef struct rob_entry {
 	char fFloatInt;
 	char entered_wr_this_cycle;
 	char available_next_cycle;
-	inst_entry *pInst;
+	struct inst_entry *pInst;
 } ROB_ENTRY;
 
 #endif

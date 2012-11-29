@@ -20,29 +20,29 @@
 
 
 
-// ROB_ENTRY robs[NUM_ROB_ENTRIES];
+// ROB_ENTRY arROB[NR_ROB_ENT];
 int rob_head = 0;
 int rob_tail = 0;
-int avail_rob_entries = NUM_ROB_ENTRIES;
+int avail_rob_entries = NR_ROB_ENT;
 
 /********************************************************************************************
 *
 * INIT AND UTILITY FUNCTIONS
 *
 *********************************************************************************************/
-//***********************state()***********************
-char * state(int state)
+//***********************fState()***********************
+char * fState(int fState)
 {
-	switch(state) {
-	case ST_ISSUED: 
+	switch(fState) {
+	case ISSUED: 
 		return "ISSUED";
-	case ST_EXECUTE: 
+	case EXECUTE: 
 		return "EXECUTE";
-	case ST_WRITE_BACK: 
+	case WRITE_RES: 
 		return "WRITE BACK";
-	case ST_COMMIT: 
+	case COMMIT: 
 		return "COMMIT";
-	case ST_WAITING: 
+	case WAITING: 
 		return "WAITING";
     }
 }
@@ -75,7 +75,7 @@ void print_reg_status()
    printf("R%d: busy=%d value=%d ptr=%p\n", i, rgiReg[i].busy, rgiReg[i].value, rgiReg[i].ptr);
  printf("\n---------------FP--------------\n");
  for(i = 0; i < FP_REG_MAX; i++)
-   printf("F%d: busy=%d value=%d ptr=%p\n", i, rgfReg[i].busy, rgfReg[i].value, rgfReg[i].ptr);
+   printf("F%d: busy=%d value=%f ptr=%p\n", i, rgfReg[i].busy, rgfReg[i].value, rgfReg[i].ptr);
 }
 
 //***********************print_mem_status()***********************
@@ -94,10 +94,18 @@ void print_rob_status()
   printf("\n---------------ROB--------------\n");
   while(head != tail)
   {
-    printf("ROB#%d: addr=%p op=%s dest=%d src1=%d src2=%d busy=%d state=%s value=%f done=%d\n", head, &robs[head], op(robs[head].iOpcode), robs[head].dest, robs[head].src1, 
-	   robs[head].src2, robs[head].busy, state(robs[head].state), robs[head].value, robs[head].done);
+    printf("ROB#%d: addr=%p op=%s dest=%d src1=%d src2=%d fState=%s fRegValue=%f iRegValue=%d\n", 
+	   head, 
+	   &arROB[head], 
+	   op(arROB[head].pInst->iOpcode), 
+	   arROB[head].pInst->rgiOperand[0], 
+	   arROB[head].pInst->rgiOperand[1], 
+	   arROB[head].pInst->rgiOperand[2], 
+	   fState(arROB[head].fState), 
+	   arROB[head].fRegValue, 
+	   arROB[head].iRegValue);
     head++;
-    if(head == NUM_ROB_ENTRIES)
+    if(head == NR_ROB_ENT)
       head = 0;
   }
 }
@@ -312,9 +320,9 @@ int init_fu()
 void init_rob()
 {
   int i;
-  for(i = 0; i < NUM_ROB_ENTRIES; i++)
+  for(i = 0; i < NR_ROB_ENT; i++)
   {
-      memset(&robs[i], 0, sizeof(ROB_ENTRY));
+      memset(&arROB[i], 0, sizeof(ROB_ENTRY));
   }
 }
 
@@ -416,58 +424,51 @@ void clear_flags()
 *
 *********************************************************************************************/
 //***********************assign_rob()***********************
-ROB_ENTRY * assign_rob(inst_entry instruction)
+ROB_ENTRY * assign_rob(inst_entry instruction) // TODO: Steve, this needs to be replaced
 {
   ROB_ENTRY * robe;
+  /*
+  robe = &arROB[rob_tail++];
+  rob_tail %= NR_ROB_ENT;
   
-  robe = &robs[rob_tail++];
-  rob_tail %= NUM_ROB_ENTRIES;
-  
-  robe->busy = 1;
-  robe->iOpcode = instruction.iOpcode;
-  robe->dest = instruction.rgiOperand[0];
-  robe->src1 = instruction.rgiOperand[1];
-  robe->src2 = instruction.rgiOperand[2];
-  robe->state = ISSUED;
+  robe->iOpcode = robe->pInst->iOpcode;
+  robe->pInst->rgiOperand[0] = instruction.rgiOperand[0];
+  robe->pInst->rgiOperand[1] = instruction.rgiOperand[1];
+  robe->pInst->rgiOperand[2] = instruction.rgiOperand[2];
+  robe->fState = ISSUED;
   robe->value = 0;
-  robe->done = 0;
   
-  if(robe->iOpcode == OP_ADDI || robe->iOpcode == OP_SUBI) // INT dest
+  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI) // INT dest
   {
-    rgiReg[robe->dest].busy = 1;
-    rgiReg[robe->dest].ptr = robe;
+    rgiReg[robe->pInst->rgiOperand[0]].busy = 1;
+    rgiReg[robe->pInst->rgiOperand[0]].ptr = robe;
   }
-  else if(robe->iOpcode == OP_L_D || robe->iOpcode == OP_ADD_D
-    || robe->iOpcode == OP_SUB_D || robe->iOpcode == OP_MUL_D
-    || robe->iOpcode == OP_DIV_D) // FP dest
+  else if(robe->pInst->iOpcode == OP_L_D || robe->pInst->iOpcode == OP_ADD_D
+    || robe->pInst->iOpcode == OP_SUB_D || robe->pInst->iOpcode == OP_MUL_D
+    || robe->pInst->iOpcode == OP_DIV_D) // FP dest
   {
-    rgfReg[robe->dest].busy = 1;
-    rgfReg[robe->dest].ptr = robe;
+    rgfReg[robe->pInst->rgiOperand[0]].busy = 1;
+    rgfReg[robe->pInst->rgiOperand[0]].ptr = robe;
   }
   avail_rob_entries--;
   return robe;
+  */
 }
 
 //***********************free_rob()***********************
 void free_rob()
 {
-  memset(&robs[rob_head], 0, sizeof(ROB_ENTRY));
+  memset(&arROB[rob_head], 0, sizeof(ROB_ENTRY));
   rob_head++;
-  rob_head %= NUM_ROB_ENTRIES;
+  rob_head %= NR_ROB_ENT;
   avail_rob_entries++;
 }
 
 //***********************assign_load()***********************
-int assign_load(inst_entry instruction)
+int assign_load(ROB_ENTRY * robe)
 {
-  ROB_ENTRY * robe;
   RES_STATION * rs;
   
-  if(avail_rob_entries <= 0 && load_unit.free_stations > 0)
-    return -1;
-  
-  robe = assign_rob(instruction);
-
   // need to find free stations	
   rs = dequeue(&(load_unit.free));
   enqueue(&(load_unit.active), rs);
@@ -480,35 +481,29 @@ int assign_load(inst_entry instruction)
   rs->cycles_remaining = LOAD_CYCLE;
   rs->iOpcode = OP_L_D;
   
-  if(rgiReg[robe->src2].busy == 1) // get ptr
+  if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgiReg[robe->src2].ptr;
+    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vj = rgiReg[robe->src2].value;
+    rs->reg_vj = rgiReg[robe->pInst->rgiOperand[2]].value;
     rs->reg_qj = NULL;
     rs->waiting_for_operands = 0;
   }
 
-  rs->reg_vk = robe->src1; // offset
+  rs->reg_vk = robe->pInst->rgiOperand[1]; // offset
   rs->dest = robe;
   return 1;
 }
 
 //***********************assign_store()***********************
-int assign_store(inst_entry instruction)
+int assign_store(ROB_ENTRY * robe)
 {
-  ROB_ENTRY * robe;
-  RES_STATION * rs;
+  RES_STATION *rs;
   
-  if(avail_rob_entries <= 0 && store_unit.free_stations > 0)
-    return -1;
-  
-  robe = assign_rob(instruction);
-
   // need to find free stations	
   rs = dequeue(&(store_unit.free));
   enqueue(&(store_unit.active), rs);
@@ -522,28 +517,28 @@ int assign_store(inst_entry instruction)
   rs->iOpcode = OP_S_D;
   rs->waiting_for_operands = 0;
   
-  if(rgfReg[robe->dest].busy == 1) // get ptr
+  if(rgfReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->dest].ptr;
+    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[0]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vk = rgfReg[robe->dest].value;
+    rs->reg_vk = rgfReg[robe->pInst->rgiOperand[0]].value;
     rs->reg_qk = NULL;
   }
   
-  if(rgiReg[robe->src2].busy == 1) // get ptr
+  if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_vj = robe->src1; // add offset
-    rs->reg_qj = rgiReg[robe->src2].ptr;
+    rs->reg_vj = robe->pInst->rgiOperand[1]; // add offset
+    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vj = rgiReg[robe->src2].value + robe->src1; // add offset
+    rs->reg_vj = rgiReg[robe->pInst->rgiOperand[2]].value + robe->pInst->rgiOperand[1]; // add offset
     rs->reg_qj = NULL;
   }
 
@@ -552,16 +547,10 @@ int assign_store(inst_entry instruction)
 }
 
 //***********************assign_int()***********************
-int assign_int(inst_entry instruction)
+int assign_int(ROB_ENTRY * robe)
 {
-  ROB_ENTRY * robe;
   RES_STATION * rs;
   
-  if(avail_rob_entries <= 0 && int_unit.free_stations > 0)
-    return -1;
-  
-  robe = assign_rob(instruction);
-
   // need to find free stations	
   rs = dequeue(&(int_unit.free));
   enqueue(&(int_unit.active), rs);
@@ -572,41 +561,41 @@ int assign_int(inst_entry instruction)
   rs->issued_this_cycle = 1;
   rs->received_val_this_cycle = 0;
   rs->cycles_remaining = INTEGER_CYCLE;
-  rs->iOpcode = instruction.iOpcode;
+  rs->iOpcode = robe->pInst->iOpcode;
   rs->waiting_for_operands = 0;
   
-  if(instruction.iOpcode == OP_ADDI || instruction.iOpcode == OP_SUBI)
+  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI)
   {
-    if(rgiReg[robe->src1].busy == 1) // get ptr
+    if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->src1].ptr;
+      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[1]].ptr;
       rs->waiting_for_operands = 1;
-      robe->state = WAITING;
+      robe->fState = WAITING;
     }
     else
     {
-      rs->reg_vj = rgiReg[robe->src1].value;
+      rs->reg_vj = rgiReg[robe->pInst->rgiOperand[1]].value;
       rs->reg_qj = NULL;
     }
     // immediate value
-    rs->reg_vk = robe->src2;
+    rs->reg_vk = robe->pInst->rgiOperand[2];
     rs->reg_qk = NULL;
   }
   else // branch OP_BNEZ
   {
-    if(rgiReg[robe->dest].busy == 1) // get ptr
+    if(rgiReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->dest].ptr;
+      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[0]].ptr;
       rs->waiting_for_operands = 1;
-      robe->state = WAITING;
+      robe->fState = WAITING;
     }
     else
     {
-      rs->reg_vj = rgiReg[robe->dest].value;
+      rs->reg_vj = rgiReg[robe->pInst->rgiOperand[0]].value;
       rs->reg_qj = NULL;
     }
     // TODO: get mem addr from symbol table for branch
-    //rs->reg_vk = (int) symbol_table(robe->src2);
+    //rs->reg_vk = (int) symbol_table(robe->pInst->rgiOperand[2]);
   }
   
   rs->dest = robe;
@@ -614,16 +603,10 @@ int assign_int(inst_entry instruction)
 }
 
 //***********************assign_fp_add()***********************
-int assign_fp_add(inst_entry instruction)
+int assign_fp_add(ROB_ENTRY * robe)
 {
-  ROB_ENTRY * robe;
   RES_STATION * rs;
   
-  if(avail_rob_entries <= 0 && fp_add_unit.free_stations > 0)
-    return -1;
-  
-  robe = assign_rob(instruction);
-
   // need to find free stations	
   rs = dequeue(&(fp_add_unit.free));
   enqueue(&(fp_add_unit.active), rs);
@@ -634,29 +617,29 @@ int assign_fp_add(inst_entry instruction)
   rs->issued_this_cycle = 1;
   rs->cycles_remaining = FP_ADDSUB_CYCLE;
   rs->received_val_this_cycle = 0;
-  rs->iOpcode = instruction.iOpcode;
+  rs->iOpcode = robe->pInst->iOpcode;
   rs->waiting_for_operands = 0;
   
-  if(rgfReg[robe->src1].busy == 1) // get ptr
+  if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->src1].ptr;
+    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vj = rgfReg[robe->src1].value;
+    rs->reg_vj = rgfReg[robe->pInst->rgiOperand[1]].value;
     rs->reg_qj = NULL;
   }
-  if(rgfReg[robe->src2].busy == 1) // get ptr
+  if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->src2].ptr;
+    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vk = rgfReg[robe->src2].value;
+    rs->reg_vk = rgfReg[robe->pInst->rgiOperand[2]].value;
     rs->reg_qk = NULL;
   }
   
@@ -665,15 +648,9 @@ int assign_fp_add(inst_entry instruction)
 }
 
 //***********************assign_fp_mult()***********************
-int assign_fp_mult(inst_entry instruction) // need special case for divide
+int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 {
-  ROB_ENTRY * robe;
   RES_STATION * rs;
-
-  if(avail_rob_entries <= 0 && fp_mult_unit.free_stations > 0)
-    return -1;
-
-  robe = assign_rob(instruction);
 
   // need to find free stations	
   rs = dequeue(&(fp_mult_unit.free));
@@ -684,34 +661,34 @@ int assign_fp_mult(inst_entry instruction) // need special case for divide
   rs->busy = 1;
   rs->issued_this_cycle = 1;
   rs->received_val_this_cycle = 0;
-  rs->iOpcode = instruction.iOpcode;
+  rs->iOpcode = robe->pInst->iOpcode;
   rs->waiting_for_operands = 0;
 
-  if(instruction.iOpcode == OP_MUL_D)
+  if(robe->pInst->iOpcode == OP_MUL_D)
     rs->cycles_remaining = FP_MULTIPLY_CYCLE;
   else // division OP_DIV_D
     rs->cycles_remaining = FP_DIVISION_CYCLE;
 
-  if(rgfReg[robe->src1].busy == 1) // get ptr
+  if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->src1].ptr;
+    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vj = rgfReg[robe->src1].value;
+    rs->reg_vj = rgfReg[robe->pInst->rgiOperand[1]].value;
     rs->reg_qj = NULL;
   }
-  if(rgfReg[robe->src2].busy == 1) // get ptr
+  if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->src2].ptr;
+    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
     rs->waiting_for_operands = 1;
-    robe->state = WAITING;
+    robe->fState = WAITING;
   }
   else
   {
-    rs->reg_vk = rgfReg[robe->src2].value;
+    rs->reg_vk = rgfReg[robe->pInst->rgiOperand[2]].value;
     rs->reg_qk = NULL;
   }
 
@@ -757,7 +734,7 @@ void write_result(RES_STATION * rs)
     if(res->reg_qj == rs->dest)
     {
       res->received_val_this_cycle = 1;
-      res->reg_vj = rs->dest->value;
+      res->reg_vj = rs->dest->fRegValue;
       res->reg_qj = NULL;
       res->waiting_for_operands = 0;
     }
@@ -769,13 +746,13 @@ void write_result(RES_STATION * rs)
     if(res->reg_qj == rs->dest)
     {
       res->received_val_this_cycle = 1;
-      res->reg_vj = res->reg_vj + rs->dest->value; // reg_vj holds offset,  need to add it to val
+      res->reg_vj = res->reg_vj + rs->dest->iRegValue; // reg_vj holds offset,  need to add it to val
       res->reg_qj = NULL;
     }
     if(res->reg_qk == rs->dest)
     {
       res->received_val_this_cycle = 1;
-      res->reg_vk = rs->dest->value;
+      res->reg_vk = rs->dest->fRegValue;
       res->reg_qk = NULL;
     }
     if(res->reg_qj == NULL && res->reg_qk == NULL)
@@ -790,7 +767,7 @@ void write_result(RES_STATION * rs)
       if(res->reg_qj == rs->dest)
       {
 	res->received_val_this_cycle = 1;
-	res->reg_vj = rs->dest->value;
+	res->reg_vj = rs->dest->iRegValue;
 	res->reg_qj = NULL;
 	res->waiting_for_operands = 0;
       }
@@ -800,13 +777,13 @@ void write_result(RES_STATION * rs)
       if(res->reg_qj == rs->dest)
       {
 	res->received_val_this_cycle = 1;
-	res->reg_vj = rs->dest->value;
+	res->reg_vj = rs->dest->iRegValue;
 	res->reg_qj = NULL;
       }
-      if(res->reg_qk == rs->dest)
+      if(res->reg_qk == rs->dest) // TODO: don't need this check because it is an immediate
       {
 	res->received_val_this_cycle = 1;
-	res->reg_vk = rs->dest->value;
+	res->reg_vk = rs->dest->iRegValue;
 	res->reg_qk = NULL;
       }
       if(res->reg_qj == NULL && res->reg_qk == NULL)
@@ -820,13 +797,13 @@ void write_result(RES_STATION * rs)
     if(res->reg_qj == rs->dest)
     {
      res->received_val_this_cycle = 1;
-     res->reg_vj = rs->dest->value;
+     res->reg_vj = rs->dest->fRegValue;
      res->reg_qj = NULL;
     }
     if(res->reg_qk == rs->dest)
     {
      res->received_val_this_cycle = 1;
-     res->reg_vk = rs->dest->value;
+     res->reg_vk = rs->dest->fRegValue;
      res->reg_qk = NULL;
     }
     if(res->reg_qj == NULL && res->reg_qk == NULL)
@@ -839,13 +816,13 @@ void write_result(RES_STATION * rs)
     if(res->reg_qj == rs->dest)
     {
      res->received_val_this_cycle = 1;
-     res->reg_vj = rs->dest->value;
+     res->reg_vj = rs->dest->fRegValue;
      res->reg_qj = NULL;
     }
     if(res->reg_qk == rs->dest)
     {
      res->received_val_this_cycle = 1;
-     res->reg_vk = rs->dest->value;
+     res->reg_vk = rs->dest->fRegValue;
      res->reg_qk = NULL;
     }
     if(res->reg_qj == NULL && res->reg_qk == NULL)
@@ -858,6 +835,7 @@ void write_result(RES_STATION * rs)
 int update_load()
 {
   RES_STATION * rs;
+  inst_entry instr;
   rs = load_unit.active;
   while(rs)
   {
@@ -872,7 +850,7 @@ int update_load()
         if(load_unit.started_one_this_cycle == 1) // cannot start another
 	  continue;
 	load_unit.started_one_this_cycle = 1;
-	rs->dest->state = EXECUTE;
+	rs->dest->fState = EXECUTE;
 	//printf("**update_load(): starting one!\n");
       }
       rs->cycles_remaining--;
@@ -881,11 +859,11 @@ int update_load()
 	printf("**update_load(): execution complete, writing result\n");
 	// write result stage/notify ROB
 	rs->busy = 0;
-	rs->dest->state = WRITE_RES;
-	rs->dest->done = 1;
+	rs->dest->fState = WRITE_RES;
 	// TODO: get correct mem val
-	rs->dest->value = rgliMemLocation[(int)(rs->reg_vj + rs->reg_vk)/4]; // not correct!
-	printf("**update_load(): value=%f\n", rs->dest->value);
+	instr = inst_fetch((int)(rs->reg_vj + rs->reg_vk), fpInAsm);
+	rs->dest->fRegValue = instr.rgiOperand[0];
+	printf("**update_load(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;
 	write_result(rs);
       }
@@ -909,7 +887,7 @@ int update_store()
         if(store_unit.started_one_this_cycle == 1)
 	  continue; // cannot start another
 	store_unit.started_one_this_cycle = 1;
-	rs->dest->state = EXECUTE;
+	rs->dest->fState = EXECUTE;
       }
       rs->cycles_remaining--;
       if(rs->cycles_remaining == 0) // this instr is done with execution phase
@@ -917,11 +895,10 @@ int update_store()
 	printf("**update_store(): execution complete, enter write result stage\n");
 	// write result stage/notify ROB
 	rs->busy = 0;
-	rs->dest->state = WRITE_RES;
-	rs->dest->done = 1;
+	rs->dest->fState = WRITE_RES;
 	// TODO: get correct mem val
-	rs->dest->dest = rs->reg_vj; // offset was already computed in vj
-	rs->dest->value = rs->reg_vk;
+	rs->dest->pInst->rgiOperand[0] = rs->reg_vj; // offset was already computed in vj
+	rs->dest->iRegValue = rs->reg_vk;
 	printf("**update_store(): value=%f to be stored at mem=%d\n", rs->reg_vk, (int)(rs->reg_vj));
 	rs->dest->entered_wr_this_cycle = 1;
 	write_result(rs);
@@ -946,7 +923,7 @@ int update_int()
         if(int_unit.started_one_this_cycle == 1)
 	  continue; // cannot start another
 	int_unit.started_one_this_cycle = 1;
-	rs->dest->state = EXECUTE;
+	rs->dest->fState = EXECUTE;
       }
       rs->cycles_remaining--;
       if(rs->cycles_remaining == 0) // this instr is done with execution phase
@@ -954,25 +931,24 @@ int update_int()
 	printf("**update_int(): execution complete, enter write result stage\n");
 	// write result stage/notify ROB
 	rs->busy = 0;
-	rs->dest->state = WRITE_RES;
-	rs->dest->done = 1;
+	rs->dest->fState = WRITE_RES;
 	
 	if(rs->iOpcode == OP_BNEZ) // branch
 	{
 	  if((int) rs->reg_vj != 0) // Branch if vj not equal to zero
 	    PC = (int) rs->reg_vk; // TODO: coordinate this line with the branch vk assignment in assign_int()
 	  branch = 0; // allow IF to continue in simulate()
-	  printf("**update_int(): value=%f\n", rs->dest->value);
+	  printf("**update_int(): pc=%d\n", PC);
 	  rs->dest->entered_wr_this_cycle = 1;
 	  // don't send branch to write result, not needed by any other res station
 	}
 	else 
 	{
 	  if(rs->iOpcode == OP_ADDI) // add immediate
-	    rs->dest->value = (int)(rs->reg_vj + rs->reg_vk);
+	    rs->dest->iRegValue = (int)(rs->reg_vj + rs->reg_vk);
 	  else // subtract immediate
-	    rs->dest->value = (int)(rs->reg_vj - rs->reg_vk);
-	  printf("**update_int(): value=%f\n", rs->dest->value);
+	    rs->dest->iRegValue = (int)(rs->reg_vj - rs->reg_vk);
+	  printf("**update_int(): value=%d\n", rs->dest->iRegValue);
 	  rs->dest->entered_wr_this_cycle = 1;
 	  write_result(rs);
 	}
@@ -997,7 +973,7 @@ int update_fp_add()
         if(fp_add_unit.started_one_this_cycle == 1)
 	  continue; // cannot start another
 	fp_add_unit.started_one_this_cycle = 1;
-	rs->dest->state = EXECUTE;
+	rs->dest->fState = EXECUTE;
       }
       rs->cycles_remaining--;
       if(rs->cycles_remaining == 0) // this instr is done with execution phase
@@ -1005,14 +981,13 @@ int update_fp_add()
 	printf("**update_fp_add(): execution complete, enter write result stage\n");
 	// write result stage/notify ROB
 	rs->busy = 0;
-	rs->dest->state = WRITE_RES;
-	rs->dest->done = 1;
+	rs->dest->fState = WRITE_RES;
 
 	if(rs->iOpcode == OP_ADD_D) // add immediate
-	  rs->dest->value = rs->reg_vj + rs->reg_vk;
+	  rs->dest->fRegValue = rs->reg_vj + rs->reg_vk;
 	else // OP_SUB_D
-	  rs->dest->value = rs->reg_vj - rs->reg_vk;
-	printf("**update_fp_add(): value=%f\n", rs->dest->value);
+	  rs->dest->fRegValue = rs->reg_vj - rs->reg_vk;
+	printf("**update_fp_add(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;
 	write_result(rs);
       }
@@ -1038,7 +1013,7 @@ int update_fp_mult()
 	  if(fp_mult_unit.started_one_this_cycle == 1)
 	    continue; // cannot start another
 	  fp_mult_unit.started_one_this_cycle = 1;
-	  rs->dest->state = EXECUTE;
+	  rs->dest->fState = EXECUTE;
 	}
 	else if(rs->cycles_remaining == FP_DIVISION_CYCLE)// if(rs->cycles_remaining == FP_DIVISION_CYCLE) // need to start a divide
 	{
@@ -1053,17 +1028,16 @@ int update_fp_mult()
 	printf("**update_fp_mult(): execution complete, enter write result stage\n");
 	// write result stage/notify ROB
 	rs->busy = 0;
-	rs->dest->state = WRITE_RES;
-	rs->dest->done = 1;
+	rs->dest->fState = WRITE_RES;
 
 	if(rs->iOpcode == OP_MUL_D) // mult fp
-	  rs->dest->value = rs->reg_vj * rs->reg_vk;
+	  rs->dest->fRegValue = rs->reg_vj * rs->reg_vk;
 	else // OP_DIV_D
 	{
-	  rs->dest->value = (float) (rs->reg_vj) / rs->reg_vk; // check this
+	  rs->dest->fRegValue = (float) (rs->reg_vj) / rs->reg_vk; // check this
 	  fp_mult_unit.divide = 0; // yay! done with non pipelined divide
 	}
-	printf("**update_fp_mult(): value=%f\n", rs->dest->value);
+	printf("**update_fp_mult(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;
 	write_result(rs);
       }
@@ -1086,33 +1060,33 @@ int update_rs()
 /*
 int update_rob() // TODO: need to seperate ROB register status 'file' from actual RF on write_result and commit
 {
-  if(robs[rob_head].busy == 1 && robs[rob_head].state == WRITE_RES)
+  if(arROB[rob_head].busy == 1 && arROB[rob_head].fState == WRITE_RES)
   {
-    if(robs[rob_head].entered_wr_this_cycle == 1)
-      robs[rob_head].entered_wr_this_cycle = 0;
+    if(arROB[rob_head].entered_wr_this_cycle == 1)
+      arROB[rob_head].entered_wr_this_cycle = 0;
     else // commit
     {
-      robs[rob_head].state = COMMIT;
-      if(robs[rob_head].iOpcode == OP_S_D)
+      arROB[rob_head].fState = COMMIT;
+      if(arROB[rob_head].iOpcode == OP_S_D)
       {
-	rgliMemLocation[robs[rob_head].dest / 4] = robs[rob_head].value; // TODO: get correct mem value, wrong as is!
+	rgliMemLocation[arROB[rob_head].dest / 4] = arROB[rob_head].value; // TODO: get correct mem value, wrong as is!
       }
-      else if(robs[rob_head].iOpcode == OP_ADDI || robs[rob_head].iOpcode == OP_SUBI)
+      else if(arROB[rob_head].iOpcode == OP_ADDI || arROB[rob_head].iOpcode == OP_SUBI)
       {
-	rgiReg[robs[rob_head].dest].value = (int) robs[rob_head].value;
-	rgiReg[robs[rob_head].dest].busy = 0;
-	rgiReg[robs[rob_head].dest].ptr = NULL;
+	rgiReg[arROB[rob_head].dest].value = (int) arROB[rob_head].value;
+	rgiReg[arROB[rob_head].dest].busy = 0;
+	rgiReg[arROB[rob_head].dest].ptr = NULL;
       }
-      else if(robs[rob_head].iOpcode == OP_ADD_D || robs[rob_head].iOpcode == OP_SUB_D
-	|| robs[rob_head].iOpcode == OP_MUL_D || robs[rob_head].iOpcode == OP_DIV_D
-	|| robs[rob_head].iOpcode == OP_L_D)
+      else if(arROB[rob_head].iOpcode == OP_ADD_D || arROB[rob_head].iOpcode == OP_SUB_D
+	|| arROB[rob_head].iOpcode == OP_MUL_D || arROB[rob_head].iOpcode == OP_DIV_D
+	|| arROB[rob_head].iOpcode == OP_L_D)
       {
-	rgfReg[robs[rob_head].dest].value = robs[rob_head].value;
-	rgfReg[robs[rob_head].dest].busy = 0;
-	rgfReg[robs[rob_head].dest].ptr = NULL;
+	rgfReg[arROB[rob_head].dest].value = arROB[rob_head].value;
+	rgfReg[arROB[rob_head].dest].busy = 0;
+	rgfReg[arROB[rob_head].dest].ptr = NULL;
       }   
       //else - ignore branches for now
-      free_rob(&robs[rob_head]);
+      free_rob(&arROB[rob_head]);
     }
   }
 }
