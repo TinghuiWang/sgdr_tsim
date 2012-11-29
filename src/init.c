@@ -1,5 +1,6 @@
-
 #include "init.h"
+#include "rob.h"
+#include "glo.h"
 
 typedef struct
 {

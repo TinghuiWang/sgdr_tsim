@@ -19,7 +19,6 @@
 #ifndef FU_H
 #define FU_H
 
-#include "glo.h"
 #include "config.h"
 #include "init.h"
 #include "rob.h"
@@ -87,24 +86,11 @@ typedef struct
 	RES_STATION *free;
 } FP_MULT_UNIT;
 
-// global vars
-extern LOAD_UNIT load_unit;
-extern STORE_UNIT store_unit;
-extern INT_UNIT int_unit;
-extern FP_ADD_UNIT fp_add_unit;
-extern FP_MULT_UNIT fp_mult_unit;
-
 // prototypes
 int init_fu();
 int assign_to_rs(ROB_ENTRY * robe);
 int update_rs();
 char * op(int op);
-
-// external vars
-extern int PC;
-extern int branch;
-extern ROB_ENTRY arROB[NR_ROB_ENT];
-extern FILE *fpInAsm;
 
 #endif
 

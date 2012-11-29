@@ -23,6 +23,7 @@
 #define FALSE			0
 
 #define NR_ROB_ENT		32
+#define NR_THREAD	1
 
 #define FP_ADD_RS		4
 #define FP_MULT_RS		3
@@ -73,5 +74,6 @@
 #define WRITE_RES	2
 #define COMMIT		4
 #define WAITING		8
+#define FREE	    16
 
 #endif

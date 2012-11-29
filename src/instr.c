@@ -1,3 +1,6 @@
+#include "init.h"
+#include "config.h"
+
 int utGetUnitTypeForInstr(inst_entry *inst) {
 	switch(inst->iOpcode) {
 	case OP_L_D:
@@ -22,4 +25,22 @@ int utGetUnitTypeForInstr(inst_entry *inst) {
 		printf("UnitType: Cannot handle Opcode %d\n", inst->iOpcode);
 		return -1;
 	}
+}
+
+char * getfState(int fState)
+{
+	switch(fState) {
+	case ISSUED: 
+		return "    ISSUED";
+	case EXECUTE: 
+		return "   EXECUTE";
+	case WRITE_RES: 
+		return "WRITE BACK";
+	case COMMIT: 
+		return "    COMMIT";
+	case WAITING: 
+		return "   WAITING";
+	default: 
+		return "      FREE";
+    }
 }

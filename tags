@@ -1,0 +1,260 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ADD	./include/gui/typedef.h	/^    ADD = 0,$/;"	e	enum:instrType
+BRUnits	./include/gui/reservationstationsviewer.h	/^    enum { FPUnits = 2, FXUnits = 2, LSUnits = 2, BRUnits = 2, Fields = 7 };    \/\/ 2 floating-point units, 2 fixed-point units$/;"	e	enum:ReservationStationsViewer::__anon8
+COMMIT	./include/config.h	74;"	d
+CONFIG_H	./include/config.h	20;"	d
+DIV	./include/gui/typedef.h	/^    DIV = 3$/;"	e	enum:instrType
+EXECUTE	./include/config.h	72;"	d
+FALSE	./include/config.h	23;"	d
+FPUnits	./include/gui/reservationstationsviewer.h	/^    enum { FPUnits = 2, FXUnits = 2, LSUnits = 2, BRUnits = 2, Fields = 7 };    \/\/ 2 floating-point units, 2 fixed-point units$/;"	e	enum:ReservationStationsViewer::__anon8
+FP_ADDSUB_CYCLE	./include/config.h	33;"	d
+FP_ADDSUB_PIPELINED	./include/config.h	40;"	d
+FP_ADD_RS	./include/config.h	27;"	d
+FP_ADD_UNIT	./include/fu.h	/^} FP_ADD_UNIT;$/;"	t	typeref:struct:__anon5
+FP_DIVISION_CYCLE	./include/config.h	35;"	d
+FP_DIVISION_PIPELINED	./include/config.h	42;"	d
+FP_MULTIPLY_CYCLE	./include/config.h	34;"	d
+FP_MULTIPLY_PIPELINED	./include/config.h	41;"	d
+FP_MULT_RS	./include/config.h	28;"	d
+FP_MULT_UNIT	./include/fu.h	/^} FP_MULT_UNIT;$/;"	t	typeref:struct:__anon6
+FP_REG_MAX	./include/config.h	47;"	d
+FU_H	./include/fu.h	20;"	d
+FXUnits	./include/gui/reservationstationsviewer.h	/^    enum { FPUnits = 2, FXUnits = 2, LSUnits = 2, BRUnits = 2, Fields = 7 };    \/\/ 2 floating-point units, 2 fixed-point units$/;"	e	enum:ReservationStationsViewer::__anon8
+Fields	./include/gui/memoryviewer.h	/^    enum { Fields = 2 };  \/\/ Field 1: Address; Field 2: Data$/;"	e	enum:MemoryViewer::__anon7
+Fields	./include/gui/reorderbufferviewer.h	/^    enum { Registers = 10, Fields = 4 };$/;"	e	enum:ReorderBufferViewer::__anon10
+Fields	./include/gui/reservationstationsviewer.h	/^    enum { FPUnits = 2, FXUnits = 2, LSUnits = 2, BRUnits = 2, Fields = 7 };    \/\/ 2 floating-point units, 2 fixed-point units$/;"	e	enum:ReservationStationsViewer::__anon8
+GLO_H	./include/glo.h	21;"	d
+INIT_H	./include/init.h	22;"	d
+INTEGER_CYCLE	./include/config.h	38;"	d
+INTEGER_PIPELINED	./include/config.h	45;"	d
+INTEGER_RS	./include/config.h	31;"	d
+INT_UNIT	./include/fu.h	/^} INT_UNIT;$/;"	t	typeref:struct:__anon4
+ISSUED	./include/config.h	71;"	d
+IS_FLAG	./src/main.c	31;"	d	file:
+I_REG_MAX	./include/config.h	48;"	d
+LOAD_CYCLE	./include/config.h	36;"	d
+LOAD_PIPELINED	./include/config.h	43;"	d
+LOAD_RS	./include/config.h	29;"	d
+LOAD_UNIT	./include/fu.h	/^} LOAD_UNIT;$/;"	t	typeref:struct:__anon2
+LSUnits	./include/gui/reservationstationsviewer.h	/^    enum { FPUnits = 2, FXUnits = 2, LSUnits = 2, BRUnits = 2, Fields = 7 };    \/\/ 2 floating-point units, 2 fixed-point units$/;"	e	enum:ReservationStationsViewer::__anon8
+MAINWINDOW_H	./include/gui/mainwindow.h	18;"	d
+MEMORYVIEWER_H	./include/gui/memoryviewer.h	17;"	d
+MUL	./include/gui/typedef.h	/^    MUL = 2,$/;"	e	enum:instrType
+MainWindow	./include/gui/mainwindow.h	/^class MainWindow : public QMainWindow$/;"	c
+MemoryData	./include/gui/typedef.h	/^} MemoryData;$/;"	t	typeref:struct:__anon11
+MemoryViewer	./include/gui/memoryviewer.h	/^class MemoryViewer : public QTableWidget$/;"	c
+NR_ROB_ENT	./include/config.h	25;"	d
+OP_ADDI	./include/config.h	58;"	d
+OP_ADD_D	./include/config.h	54;"	d
+OP_BNEZ	./include/config.h	60;"	d
+OP_DIV_D	./include/config.h	57;"	d
+OP_L_D	./include/config.h	52;"	d
+OP_MEM	./include/config.h	51;"	d
+OP_MUL_D	./include/config.h	53;"	d
+OP_NOP	./include/config.h	61;"	d
+OP_SUBI	./include/config.h	59;"	d
+OP_SUB_D	./include/config.h	56;"	d
+OP_S_D	./include/config.h	55;"	d
+PC	./src/main.c	/^int PC = 0;$/;"	v
+ProcessorCount	./include/gui/registerfileviewer.h	/^    enum { RegisterCount = 32, ProcessorCount = 2 };    \/\/ RegisterCount tracks number of registers of the same trype$/;"	e	enum:RegisterFileViewer::__anon9
+REGISTERFILEVIEWER_H	./include/gui/registerfileviewer.h	17;"	d
+REORDERBUFFERVIEWER_H	./include/gui/reorderbufferviewer.h	17;"	d
+RESERVATIONSTATIONSVIEWER_H	./include/gui/reservationstationsviewer.h	17;"	d
+RES_STATION	./include/fu.h	/^} RES_STATION;$/;"	t	typeref:struct:res_station
+ROB_DoCommit	./src/rob.c	/^int ROB_DoCommit(ROB_ENTRY *entry) {$/;"	f
+ROB_ENTRY	./include/rob.h	/^} ROB_ENTRY;$/;"	t	typeref:struct:rob_entry
+ROB_H	./include/rob.h	20;"	d
+ROB_Issue	./src/rob.c	/^int ROB_Issue(int InstrNum, FILE *fpAsm) {$/;"	f
+ROB_ST_CO	./include/rob.h	29;"	d
+ROB_ST_EX	./include/rob.h	27;"	d
+ROB_ST_FREE	./include/rob.h	25;"	d
+ROB_ST_IS	./include/rob.h	26;"	d
+ROB_ST_WB	./include/rob.h	28;"	d
+ROB_TryCommit	./src/rob.c	/^int ROB_TryCommit(ROB_ENTRY *entry) {$/;"	f
+RegisterCount	./include/gui/registerfileviewer.h	/^    enum { RegisterCount = 32, ProcessorCount = 2 };    \/\/ RegisterCount tracks number of registers of the same trype$/;"	e	enum:RegisterFileViewer::__anon9
+RegisterFileData	./include/gui/typedef.h	/^} RegisterFileData;$/;"	t	typeref:struct:__anon12
+RegisterFileViewer	./include/gui/registerfileviewer.h	/^class RegisterFileViewer : public QTableWidget$/;"	c
+Registers	./include/gui/reorderbufferviewer.h	/^    enum { Registers = 10, Fields = 4 };$/;"	e	enum:ReorderBufferViewer::__anon10
+ReorderBufferData	./include/gui/typedef.h	/^} ReorderBufferData;$/;"	t	typeref:struct:__anon13
+ReorderBufferViewer	./include/gui/reorderbufferviewer.h	/^class ReorderBufferViewer : public QTableWidget$/;"	c
+ReservationStationsData	./include/gui/typedef.h	/^} ReservationStationsData;$/;"	t	typeref:struct:__anon14
+ReservationStationsViewer	./include/gui/reservationstationsviewer.h	/^class ReservationStationsViewer : public QTableWidget$/;"	c
+STORE_CYCLE	./include/config.h	37;"	d
+STORE_PIPELINED	./include/config.h	44;"	d
+STORE_RS	./include/config.h	30;"	d
+STORE_UNIT	./include/fu.h	/^} STORE_UNIT;$/;"	t	typeref:struct:__anon3
+SUB	./include/gui/typedef.h	/^    SUB = 1,$/;"	e	enum:instrType
+TRUE	./include/config.h	22;"	d
+TYPEDEF_H	./include/gui/typedef.h	17;"	d
+UNIT_FP_ADD	./include/config.h	67;"	d
+UNIT_FP_MULT	./include/config.h	68;"	d
+UNIT_INT	./include/config.h	66;"	d
+UNIT_LOAD	./include/config.h	64;"	d
+UNIT_STORE	./include/config.h	65;"	d
+WAITING	./include/config.h	75;"	d
+WRITE_RES	./include/config.h	73;"	d
+active	./include/fu.h	/^	RES_STATION *active;$/;"	m	struct:__anon2
+active	./include/fu.h	/^	RES_STATION *active;$/;"	m	struct:__anon3
+active	./include/fu.h	/^	RES_STATION *active;$/;"	m	struct:__anon4
+active	./include/fu.h	/^	RES_STATION *active;$/;"	m	struct:__anon5
+active	./include/fu.h	/^	RES_STATION *active;$/;"	m	struct:__anon6
+address	./include/gui/typedef.h	/^    int address;$/;"	m	struct:__anon11
+arROB	./src/main.c	/^ROB_ENTRY arROB[NR_ROB_ENT];$/;"	v
+assign_fp_add	./src/fu.c	/^int assign_fp_add(ROB_ENTRY * robe)$/;"	f
+assign_fp_mult	./src/fu.c	/^int assign_fp_mult(ROB_ENTRY *robe) \/\/ need special case for divide$/;"	f
+assign_int	./src/fu.c	/^int assign_int(ROB_ENTRY * robe)$/;"	f
+assign_load	./src/fu.c	/^int assign_load(ROB_ENTRY * robe)$/;"	f
+assign_rob	./src/fu.c	/^ROB_ENTRY * assign_rob(inst_entry instruction) \/\/ TODO: Steve, this needs to be replaced$/;"	f
+assign_store	./src/fu.c	/^int assign_store(ROB_ENTRY * robe)$/;"	f
+assign_to_rs	./src/fu.c	/^int assign_to_rs(ROB_ENTRY *rob_ent)$/;"	f
+avail_rob_entries	./src/fu.c	/^int avail_rob_entries = NR_ROB_ENT;$/;"	v
+available_next_cycle	./include/rob.h	/^	char available_next_cycle;$/;"	m	struct:rob_entry
+branch	./src/main.c	/^int branch = 0;$/;"	v
+busy	./include/fu.h	/^	char busy;$/;"	m	struct:res_station
+busy	./include/gui/typedef.h	/^    bool busy;$/;"	m	struct:__anon14
+busy	./include/rob.h	/^  char busy;$/;"	m	struct:fp_reg_entry
+busy	./include/rob.h	/^  char busy;$/;"	m	struct:inst_reg_entry
+checkUnit	./src/rob.c	/^int checkUnit(inst_entry *instr) {$/;"	f
+clear_flags	./src/fu.c	/^void clear_flags()$/;"	f
+cycles_remaining	./include/fu.h	/^	int cycles_remaining;$/;"	m	struct:res_station
+dataFixProc1	./include/gui/typedef.h	/^    int dataFixProc1;$/;"	m	struct:__anon12
+dataFixProc2	./include/gui/typedef.h	/^    int dataFixProc2;$/;"	m	struct:__anon12
+dataFloatProc1	./include/gui/typedef.h	/^    int dataFloatProc1;$/;"	m	struct:__anon12
+dataFloatProc2	./include/gui/typedef.h	/^    int dataFloatProc2;$/;"	m	struct:__anon12
+dequeue	./src/fu.c	/^RES_STATION* dequeue(RES_STATION **queue)$/;"	f
+dest	./include/fu.h	/^	ROB_ENTRY *dest;$/;"	m	struct:res_station
+dest	./include/gui/typedef.h	/^    char *dest;$/;"	m	struct:__anon14
+destination	./include/gui/typedef.h	/^    char *destination;$/;"	m	struct:__anon13
+divide	./include/fu.h	/^	char divide; \/\/ needed because divide is NOT pipelined$/;"	m	struct:__anon6
+done	./include/gui/typedef.h	/^    bool done;$/;"	m	struct:__anon13
+enqueue	./src/fu.c	/^void enqueue(RES_STATION **queue, RES_STATION *q)$/;"	f
+entered_wr_this_cycle	./include/rob.h	/^	char entered_wr_this_cycle;$/;"	m	struct:rob_entry
+fDesValid	./include/rob.h	/^	char fDesValid;$/;"	m	struct:rob_entry
+fFloatInt	./include/rob.h	/^	char fFloatInt;$/;"	m	struct:rob_entry
+fRegValue	./include/rob.h	/^	double fRegValue;$/;"	m	struct:rob_entry
+fSb	./include/rob.h	/^	char fSb;$/;"	m	struct:rob_entry
+fSpec	./include/rob.h	/^	char fSpec;$/;"	m	struct:rob_entry
+fState	./include/rob.h	/^	char fState;$/;"	m	struct:rob_entry
+fState	./src/fu.c	/^char * fState(int fState)$/;"	f
+fileMenu	./include/gui/mainwindow.h	/^    QMenu *fileMenu;$/;"	m	class:MainWindow
+fpInAsm	./src/main.c	/^FILE *fpInAsm = NULL;$/;"	v
+fp_add_unit	./src/main.c	/^FP_ADD_UNIT fp_add_unit;$/;"	v
+fp_mult_unit	./src/main.c	/^FP_MULT_UNIT fp_mult_unit;$/;"	v
+fp_reg_entry	./include/rob.h	/^typedef struct fp_reg_entry$/;"	s
+fp_reg_entry	./include/rob.h	/^} fp_reg_entry;$/;"	t	typeref:struct:fp_reg_entry
+free	./include/fu.h	/^	RES_STATION *free;$/;"	m	struct:__anon2
+free	./include/fu.h	/^	RES_STATION *free;$/;"	m	struct:__anon3
+free	./include/fu.h	/^	RES_STATION *free;$/;"	m	struct:__anon4
+free	./include/fu.h	/^	RES_STATION *free;$/;"	m	struct:__anon5
+free	./include/fu.h	/^	RES_STATION *free;$/;"	m	struct:__anon6
+free_rob	./src/fu.c	/^void free_rob()$/;"	f
+free_stations	./include/fu.h	/^	int free_stations;$/;"	m	struct:__anon2
+free_stations	./include/fu.h	/^	int free_stations;$/;"	m	struct:__anon3
+free_stations	./include/fu.h	/^	int free_stations;$/;"	m	struct:__anon4
+free_stations	./include/fu.h	/^	int free_stations;$/;"	m	struct:__anon5
+free_stations	./include/fu.h	/^	int free_stations;$/;"	m	struct:__anon6
+get_memory_locations	./src/init.c	/^void get_memory_locations(FILE *fpAsm)$/;"	f
+iAddr	./src/init.c	/^	int iAddr;$/;"	m	struct:__anon1	file:
+iIndex	./include/rob.h	/^	int iIndex;$/;"	m	struct:rob_entry
+iMemCur	./src/init.c	/^int iMemCur = 0;$/;"	v
+iMemMax	./src/init.c	/^int iMemMax = 100;$/;"	v
+iOpcode	./include/fu.h	/^	int iOpcode;$/;"	m	struct:res_station
+iOpcode	./include/init.h	/^	int iOpcode;$/;"	m	struct:inst_entry
+iROBAvailEntry	./include/glo.h	/^extern int iROBAvailEntry = NR_ROB_ENT;$/;"	v
+iROBAvailEntry	./src/main.c	/^int iROBAvailEntry = NR_ROB_ENT;$/;"	v
+iRegValue	./include/rob.h	/^	int iRegValue;$/;"	m	struct:rob_entry
+iSymTableCur	./src/init.c	/^int iSymTableCur = 0;$/;"	v
+iSymTableMax	./src/init.c	/^int iSymTableMax = 20;$/;"	v
+id	./include/fu.h	/^	char id;$/;"	m	struct:res_station
+init_fu	./src/fu.c	/^int init_fu()$/;"	f
+init_registers	./src/init.c	/^void init_registers(FILE *fpFReg, FILE *fpIReg)$/;"	f
+init_rob	./src/fu.c	/^void init_rob()$/;"	f
+inst_entry	./include/init.h	/^typedef struct inst_entry$/;"	s
+inst_entry	./include/init.h	/^} inst_entry;$/;"	t	typeref:struct:inst_entry
+inst_fetch	./src/init.c	/^inst_entry inst_fetch(int iAddr, FILE *fpAsm)$/;"	f
+inst_reg_entry	./include/rob.h	/^typedef struct inst_reg_entry$/;"	s
+instrType	./include/gui/typedef.h	/^enum instrType {$/;"	g
+instruction	./include/gui/typedef.h	/^    instrType instruction;$/;"	m	struct:__anon13
+int_reg_entry	./include/rob.h	/^} int_reg_entry;$/;"	t	typeref:struct:inst_reg_entry
+int_unit	./src/main.c	/^INT_UNIT int_unit;$/;"	v
+issued_this_cycle	./include/fu.h	/^	char issued_this_cycle;$/;"	m	struct:res_station
+load_unit	./src/main.c	/^LOAD_UNIT load_unit;$/;"	v
+main	./src/main.c	/^int main(int argc, char** argv) $/;"	f
+mainTimer	./include/gui/mainwindow.h	/^    QTimer *mainTimer;$/;"	m	class:MainWindow
+memoryData	./include/gui/mainwindow.h	/^    MemoryData *memoryData;$/;"	m	class:MainWindow
+memoryViewer	./include/gui/mainwindow.h	/^    MemoryViewer *memoryViewer;$/;"	m	class:MainWindow
+next	./include/fu.h	/^	struct res_station *next; \/\/ needed for priority queues$/;"	m	struct:res_station	typeref:struct:res_station::res_station
+op	./include/gui/typedef.h	/^    instrType op;$/;"	m	struct:__anon14
+op	./src/fu.c	/^char * op(int op)$/;"	f
+openAction	./include/gui/mainwindow.h	/^    QAction *openAction;$/;"	m	class:MainWindow
+pARF	./include/rob.h	/^	void *pARF;$/;"	m	struct:rob_entry
+pInst	./include/rob.h	/^	struct inst_entry *pInst;$/;"	m	struct:rob_entry	typeref:struct:rob_entry::inst_entry
+printUsage	./src/main.c	/^printUsage() {$/;"	f
+print_mem_status	./src/fu.c	/^void print_mem_status()$/;"	f
+print_reg_status	./src/fu.c	/^void print_reg_status()$/;"	f
+print_rob_status	./src/fu.c	/^void print_rob_status()$/;"	f
+print_rs_status	./src/fu.c	/^void print_rs_status()$/;"	f
+processingMenu	./include/gui/mainwindow.h	/^    QMenu *processingMenu;$/;"	m	class:MainWindow
+ptr	./include/rob.h	/^  ROB_ENTRY * ptr;$/;"	m	struct:fp_reg_entry
+ptr	./include/rob.h	/^  ROB_ENTRY * ptr;$/;"	m	struct:inst_reg_entry
+qj	./include/gui/typedef.h	/^    char *qj;$/;"	m	struct:__anon14
+qk	./include/gui/typedef.h	/^    char *qk;$/;"	m	struct:__anon14
+received_val_this_cycle	./include/fu.h	/^	char received_val_this_cycle;$/;"	m	struct:res_station
+reg_qj	./include/fu.h	/^	ROB_ENTRY *reg_qj;$/;"	m	struct:res_station
+reg_qk	./include/fu.h	/^	ROB_ENTRY *reg_qk;$/;"	m	struct:res_station
+reg_vj	./include/fu.h	/^	float reg_vj;$/;"	m	struct:res_station
+reg_vk	./include/fu.h	/^	float reg_vk;$/;"	m	struct:res_station
+registerFileData	./include/gui/mainwindow.h	/^    RegisterFileData *registerFileData;$/;"	m	class:MainWindow
+registerFileViewer	./include/gui/mainwindow.h	/^    RegisterFileViewer *registerFileViewer;$/;"	m	class:MainWindow
+remove_queue	./src/fu.c	/^int remove_queue(RES_STATION **queue, RES_STATION *q)$/;"	f
+reorderBufferData	./include/gui/mainwindow.h	/^    ReorderBufferData *reorderBufferData;$/;"	m	class:MainWindow
+reorderBufferViewer	./include/gui/mainwindow.h	/^    ReorderBufferViewer *reorderBufferViewer;$/;"	m	class:MainWindow
+res_station	./include/fu.h	/^typedef struct res_station$/;"	s
+reservationStationViewer	./include/gui/mainwindow.h	/^    ReservationStationsViewer *reservationStationViewer;$/;"	m	class:MainWindow
+reservationStationsData	./include/gui/mainwindow.h	/^    ReservationStationsData *reservationStationsData;$/;"	m	class:MainWindow
+rgSymbol	./src/init.c	/^sym_entry *rgSymbol;$/;"	v
+rgfReg	./src/main.c	/^fp_reg_entry rgfReg[FP_REG_MAX];$/;"	v
+rgiOperand	./include/init.h	/^	int rgiOperand[3];$/;"	m	struct:inst_entry
+rgiReg	./src/main.c	/^int_reg_entry rgiReg[I_REG_MAX];$/;"	v
+rgliMemLocation	./src/init.c	/^long int *rgliMemLocation;$/;"	v
+rob_entry	./include/rob.h	/^typedef struct rob_entry {$/;"	s
+rob_head	./src/fu.c	/^int rob_head = 0;$/;"	v
+rob_tail	./src/fu.c	/^int rob_tail = 0;$/;"	v
+rs	./include/fu.h	/^	RES_STATION rs[FP_ADD_RS];$/;"	m	struct:__anon5
+rs	./include/fu.h	/^	RES_STATION rs[FP_MULT_RS];$/;"	m	struct:__anon6
+rs	./include/fu.h	/^	RES_STATION rs[INTEGER_RS];$/;"	m	struct:__anon4
+rs	./include/fu.h	/^	RES_STATION rs[LOAD_RS];$/;"	m	struct:__anon2
+rs	./include/fu.h	/^	RES_STATION rs[STORE_RS];$/;"	m	struct:__anon3
+simulate	./src/main.c	/^void simulate(FILE *fpInAsm)$/;"	f
+startAction	./include/gui/mainwindow.h	/^    QAction *startAction;$/;"	m	class:MainWindow
+started_one_this_cycle	./include/fu.h	/^	char started_one_this_cycle;$/;"	m	struct:__anon2
+started_one_this_cycle	./include/fu.h	/^	char started_one_this_cycle;$/;"	m	struct:__anon3
+started_one_this_cycle	./include/fu.h	/^	char started_one_this_cycle;$/;"	m	struct:__anon4
+started_one_this_cycle	./include/fu.h	/^	char started_one_this_cycle;$/;"	m	struct:__anon5
+started_one_this_cycle	./include/fu.h	/^	char started_one_this_cycle;$/;"	m	struct:__anon6
+stopAction	./include/gui/mainwindow.h	/^    QAction *stopAction;$/;"	m	class:MainWindow
+store_unit	./src/main.c	/^STORE_UNIT store_unit;$/;"	v
+sym_entry	./src/init.c	/^} sym_entry;$/;"	t	typeref:struct:__anon1	file:
+symbol_to_addr	./src/init.c	/^int symbol_to_addr (char * pszOperand)$/;"	f
+szLabel	./src/init.c	/^	char szLabel[25];$/;"	m	struct:__anon1	file:
+update_fp_add	./src/fu.c	/^int update_fp_add()$/;"	f
+update_fp_mult	./src/fu.c	/^int update_fp_mult()$/;"	f
+update_int	./src/fu.c	/^int update_int()$/;"	f
+update_load	./src/fu.c	/^int update_load()$/;"	f
+update_rob	./src/rob.c	/^int update_rob() {$/;"	f
+update_rs	./src/fu.c	/^int update_rs()$/;"	f
+update_store	./src/fu.c	/^int update_store()$/;"	f
+utGetUnitTypeForInstr	./src/instr.c	/^int utGetUnitTypeForInstr(inst_entry *inst) {$/;"	f
+value	./include/gui/typedef.h	/^    int value;$/;"	m	struct:__anon11
+value	./include/gui/typedef.h	/^    int value;$/;"	m	struct:__anon13
+value	./include/rob.h	/^  double value;$/;"	m	struct:fp_reg_entry
+value	./include/rob.h	/^  int value;$/;"	m	struct:inst_reg_entry
+vj	./include/gui/typedef.h	/^    int vj;$/;"	m	struct:__anon14
+vk	./include/gui/typedef.h	/^    int vk;$/;"	m	struct:__anon14
+waiting_for_operands	./include/fu.h	/^	char waiting_for_operands;$/;"	m	struct:res_station
+write_result	./src/fu.c	/^void write_result(RES_STATION * rs)$/;"	f

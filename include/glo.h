@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifdef GLO_H
+#ifndef GLO_H
 #define GLO_H
 
 #include "config.h"
@@ -30,8 +30,7 @@ extern int_reg_entry rgiReg[I_REG_MAX];
 extern fp_reg_entry rgfReg[FP_REG_MAX];
 
 // Re-Order Buffer
-extern ROB_ENTRY arROB[NR_ROB_ENT];
-extern int iROBAvailEntry = NR_ROB_ENT;
+extern ROB_TABLE rob_tab[NR_THREAD];
 
 // Input file
 extern FILE *fpInAsm;
@@ -44,11 +43,10 @@ extern FP_ADD_UNIT fp_add_unit;
 extern FP_MULT_UNIT fp_mult_unit;
 
 // Temporary Variables
+extern int fSpeculate;
 extern int PC;
 extern int branch;
 extern void* pExUnitHeader;
-extern int rInt[NR_REG_INT];
-extern float rFloat[NR_REG_FP];
 extern void* pROB;
 
 #endif

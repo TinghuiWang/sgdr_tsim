@@ -50,8 +50,10 @@ FP_ADD_UNIT fp_add_unit;
 FP_MULT_UNIT fp_mult_unit;
 
 // Re-Order Buffer
-ROB_ENTRY arROB[NR_ROB_ENT];
-int iROBAvailEntry = NR_ROB_ENT;
+ROB_TABLE rob_tab[NR_THREAD];
+
+// Global Flag
+int fSpeculate = 0;
 
 // Input file
 FILE *fpInAsm = NULL;
@@ -77,54 +79,22 @@ void simulate(FILE *fpInAsm)
   for(i = 0; i < 6; i++) // TODO: needs to be changed to while(!end of program) loop
   {
     printf("\n\n**************************** CYCLE=%d | PC=%d ****************************\n\n", cycles, PC);
-/*
-    if(stalled)
-    {
-      //if so, try and issue the stalled instruction again
-      instruction = stalled_instruction;
-      stalled = 0;
-    }
-    else
-    {
-      //else not stalled
-      instruction = inst_fetch(PC, fpInAsm);
-    }
-
-    if(instruction.iOpcode == OP_NOP || branch == 1) // TODO: 100% branch pred -> nop til WR of branch?
-    {
-      printf("**simulate(): performing a NOP\n");
-      goto update;
-    }
-    
-    printf("**simulate(): IF: %s %d %d %d\n", op(instruction.iOpcode), instruction.rgiOperand[0], instruction.rgiOperand[1], instruction.rgiOperand[2]);
-    if(assign_to_rs(instruction) == -1)
-    {
-      printf("**simulate(): instruction stalled\n");
-      stalled_instruction = instruction;
-      stalled = 1;
-    }
-    
-    if(instruction.iOpcode == OP_BNEZ)
-    {
-      printf("**simulate(): branch instruction, will NOP next cycle\n");
-      branch = 1; // needed for 1 nop after branch instruction
-    }
-    
-update:
-*/
+	
 	// Update Reservation Station
     update_rs(); 
 	// Update ReOrder Buffer
     update_rob();
+	ROB_Issue(1, fpInAsm);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
     print_reg_status();
-    print_rob_status();
+    ROB_print(rob_tab);
     print_rs_status();
 
 	// Move on to Next Cycle
     cycles++;
+	getc(stdin);
   }
 }
 
@@ -199,6 +169,8 @@ int main(int argc, char** argv)
   init_registers(fpInRegFP, fpInRegInt);
 
   init_fu(); // zeros out data struct
-  init_rob(); // zeros out data struct
+  ROB_Init(rob_tab); // zeros out data struct
+  ROB_print(rob_tab);
+  print_rs_status();
   simulate(fpInAsm);
 }

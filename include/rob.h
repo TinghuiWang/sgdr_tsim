@@ -54,6 +54,38 @@ typedef struct rob_entry {
 	char entered_wr_this_cycle;
 	char available_next_cycle;
 	struct inst_entry *pInst;
+	struct rob_entry *next;
 } ROB_ENTRY;
+
+/*
+ * ROB_TABLE: Re-order Buffer Structure
+ * --------------------------------------
+ * iAvail - Count of available entry
+ * busy - List of busy ROB_ENTRY
+ * free - List of free ROB_ENTRY
+ * arROB - ROB Entry Array
+ */
+typedef struct rob_table {
+	ROB_ENTRY arROB[NR_ROB_ENT];
+	ROB_ENTRY *busy;
+	ROB_ENTRY *free;
+	int iAvail;
+} ROB_TABLE;
+
+typedef struct inst_reg_entry
+{
+	int index;
+	char busy;
+	ROB_ENTRY * ptr;
+	int value;
+} int_reg_entry;
+
+typedef struct fp_reg_entry
+{
+	int index;
+	char busy;
+	ROB_ENTRY * ptr;
+	double value;
+} fp_reg_entry;
 
 #endif

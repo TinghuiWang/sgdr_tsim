@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "config.h"
-#include "rob.h"
 
 typedef struct inst_entry
 {
@@ -33,23 +32,7 @@ typedef struct inst_entry
 	int rgiOperand[3];
 } inst_entry;
 
-typedef struct inst_reg_entry
-{
-  char busy;
-  ROB_ENTRY * ptr;
-  int value;
-} int_reg_entry;
-
-typedef struct fp_reg_entry
-{
-  char busy;
-  ROB_ENTRY * ptr;
-  double value;
-} fp_reg_entry;
-
 extern long int *rgliMemLocation;
-extern int_reg_entry rgiReg[I_REG_MAX];
-extern fp_reg_entry rgfReg[FP_REG_MAX];
 
 void get_memory_locations(FILE *fpAsm);
 void init_registers(FILE *fpFReg, FILE *fpIReg);

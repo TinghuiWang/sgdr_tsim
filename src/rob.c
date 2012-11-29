@@ -20,27 +20,171 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "glo.h"
 #include "config.h"
 #include "rob.h"
 #include "fu.h" 
 #include "init.h" 
+#include "glo.h"
+
+#define DEBUG_ROB_VERBOSE
+
+int ROB_Init(ROB_TABLE *rob) {
+	int i;
+
+	rob->iAvail = NR_ROB_ENT;
+	rob->busy = NULL;
+	rob->free = rob->arROB;
+	
+	for(i = 0; i < NR_ROB_ENT - 1; i++) {
+		rob->arROB[i].iIndex = i;
+		rob->arROB[i].fState = FREE;
+		rob->arROB[i].next = &(rob->arROB[i+1]);
+	}
+	
+	rob->arROB[NR_ROB_ENT - 1].iIndex = NR_ROB_ENT - 1;
+	rob->arROB[NR_ROB_ENT - 1].fState = FREE;
+	rob->arROB[NR_ROB_ENT - 1].next = NULL;
+}
+
+/*
+ * ROB_dequeue
+ * -----------------------------------------------------
+ *  list: pointer to the list header
+ *  ent: pointer to the ent to be removed, 
+ *       NULL to remove the first entry in the list
+ *  return: Return the pointer to the ROB_ENTRY removed
+ */
+ROB_ENTRY *ROB_dequeue(ROB_ENTRY **list, ROB_ENTRY *ent) {
+	ROB_ENTRY* tmp;
+
+	if(*list == NULL) {
+		printf("[ROB_DEQUEUE] err: List is empty\n");
+		return NULL;
+	}
+
+	if(ent == NULL) { // Dequeue the first entry from the list
+		tmp = *list;
+		*list = (*list)->next;
+		tmp->next = NULL;
+		return tmp;
+	} else {
+		if(*list == ent) {
+			*list = ent->next;
+			ent->next = NULL;
+			return ent;
+		} else {
+			tmp = *list;
+			while(tmp->next != ent) {
+				tmp = tmp->next;
+				if(tmp == NULL) {
+					printf("[ROB_DEQUEUE] err: ent not found in the list\n");
+					return NULL;
+				}
+			}
+			tmp->next = ent->next;
+			ent->next = NULL;
+			return ent;
+		}
+	}
+	return NULL;
+}
+
+int ROB_enqueue(ROB_ENTRY **list, ROB_ENTRY *ent, int fhead) {
+	if(fhead) {
+		ent->next = *list;
+		*list = ent;
+	} else {
+		ROB_ENTRY** tmp = list;
+		while(*tmp != NULL) {
+			tmp = &((*tmp)->next);
+		}
+		ent->next = NULL;
+		*tmp = ent;
+	}
+	return 0;
+}
+
+int ROB_MarkFree(ROB_TABLE *rob, ROB_ENTRY *ent) {
+	ROB_ENTRY *tmp = ROB_dequeue(&(rob->busy), ent);
+
+	if(tmp == NULL) {
+		return -1;
+	}
+
+	ROB_enqueue(&(rob->free), tmp, 0); 
+	rob->iAvail ++;
+	return 0;
+}
+
+ROB_ENTRY *ROB_getEntry(ROB_TABLE *rob) {
+	ROB_ENTRY *tmp = ROB_dequeue(&(rob->free), NULL);
+	
+	if(tmp == NULL) {
+		return NULL;
+	}
+
+	rob->iAvail--;
+	ROB_enqueue(&(rob->busy), tmp, 0);
+	return tmp;
+}
+
+int ROB_printEntry(ROB_ENTRY *ent) {
+	printf("%2d ", ent->iIndex);
+	printf("%s ", getfState(ent->fState));
+	if(ent->fState == FREE) {
+		printf("\n");
+		return 0;
+	}
+	printf("Spec:%d ", ent->fSpec);
+	printf("Store:%d ", ent->fSb);
+	if(ent->pInst->iOpcode & 0x80) {
+		printf("Value: %8f ", ent->fRegValue);
+		printf("Dest: F%d ", ((fp_reg_entry *) (ent->pARF))->index);
+	} else {
+		printf("Value: %8d ", ent->iRegValue);
+		printf("Dest: R%d ", ((int_reg_entry *) (ent->pARF))->index);
+	}
+	printf("\n");
+	return 0;
+}
+
+int ROB_printList(ROB_ENTRY *list) {
+	ROB_ENTRY *tmp = list;
+
+	while(tmp != NULL) {
+		printf("ROB&     ");
+		ROB_printEntry(tmp);
+		tmp = tmp->next;
+	}
+	
+	return 0;
+}
+
+int ROB_print(ROB_TABLE *rob) {	
+	printf("Re-Order Buffer 0x%x\n", rob);
+	printf("ROB& Available Entry (for Next Cycle): %d\n", rob->iAvail);
+	printf("ROB& Busy List:\n");
+	ROB_printList(rob->busy);
+	printf("ROB& Free List:");
+	ROB_printList(rob->free);
+	return 0;
+}
 
 int ROB_DoCommit(ROB_ENTRY *entry) {
 	if(entry->fSb) {
 		// Perform Store
 		return;
 	}
-	if(IsFloatInstr(entry->pInst->iOpcode)) {
+	if(entry->pInst->iOpcode & 0x80) {
 		fp_reg_entry* prgfReg = entry->pARF;
 		prgfReg->value = entry->fRegValue;
-		pregfReg->busy = 0;
-		pregfReg->ptr = NULL; 
+		prgfReg->busy = 0;
+		prgfReg->ptr = NULL; 
 	} else {
 		int_reg_entry* prgiReg = entry->pARF;
 		prgiReg->value = entry->iRegValue;
-		pregfReg->busy = 0;
-		pregfReg->ptr = NULL; 
+		prgiReg->busy = 0;
+		prgiReg->ptr = NULL; 
 	}
 	// Mark the entry available for Next Cycle
 	entry->available_next_cycle = 1;
@@ -48,11 +192,11 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 }
 
 int ROB_TryCommit(ROB_ENTRY *entry) {
-	if (entry->state == WRITE_RES) {
+	if (entry->fState == WRITE_RES) {
 		if(entry->entered_wr_this_cycle == 1) {
 			entry->entered_wr_this_cycle = 0;
 		} else {	// COmmit
-			entry->state = COMMIT;
+			entry->fState = COMMIT;
 			ROB_DoCommit(entry);
 		}
 	}
@@ -103,7 +247,7 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 	
 	for (i = 0; i < InstrNum; i++) {
 		curInst = (inst_entry*) malloc (sizeof(struct inst_entry));
-		*curInst = inst_fetch(curPC, fpAsm);
+		*curInst = inst_fetch(PC, fpAsm);
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse & fUnitUsed) {
@@ -111,7 +255,7 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			return i;
 		}
 		// Check ROB Availability
-		curROBEntry = getROBEntry();
+		curROBEntry = ROB_getEntry(rob_tab);
 		if(curROBEntry == NULL) {
 			#ifdef DEBUG_ROB_VERBOSE
 			printf("Re-order Buffer is full. No Available Entry Found.\n");
@@ -150,10 +294,10 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {
 				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = rgfReg[curInst->rgiOperand[0]];
+				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
 			} else {
 				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = rgfReg[curInst->rgiOperand[0]];
+				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
 			}
 		}
 	
@@ -170,6 +314,6 @@ int update_rob() {
 
 	// Commit results
 	for(i = 0; i < NR_ROB_ENT; i++) {
-		ROB_Commit(&arROB[i]);
+		ROB_TryCommit(&rob_tab->arROB[i]);
 	}
 }

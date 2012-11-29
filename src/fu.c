@@ -17,7 +17,7 @@
  */
 
 #include "fu.h"
-
+#include "glo.h"
 
 
 // ROB_ENTRY arROB[NR_ROB_ENT];
@@ -30,22 +30,6 @@ int avail_rob_entries = NR_ROB_ENT;
 * INIT AND UTILITY FUNCTIONS
 *
 *********************************************************************************************/
-//***********************fState()***********************
-char * fState(int fState)
-{
-	switch(fState) {
-	case ISSUED: 
-		return "ISSUED";
-	case EXECUTE: 
-		return "EXECUTE";
-	case WRITE_RES: 
-		return "WRITE BACK";
-	case COMMIT: 
-		return "COMMIT";
-	case WAITING: 
-		return "WAITING";
-    }
-}
 
 //***********************op()***********************
 // To-Do: Change Case Params to Global Definition
@@ -83,31 +67,6 @@ void print_mem_status()
 {
  printf("\n---------------Memory--------------\n");
 
-}
-
-//***********************print_rob_status()***********************
-void print_rob_status()
-{
-  int head = rob_head;
-  int tail = rob_tail;
-  
-  printf("\n---------------ROB--------------\n");
-  while(head != tail)
-  {
-    printf("ROB#%d: addr=%p op=%s dest=%d src1=%d src2=%d fState=%s fRegValue=%f iRegValue=%d\n", 
-	   head, 
-	   &arROB[head], 
-	   op(arROB[head].pInst->iOpcode), 
-	   arROB[head].pInst->rgiOperand[0], 
-	   arROB[head].pInst->rgiOperand[1], 
-	   arROB[head].pInst->rgiOperand[2], 
-	   fState(arROB[head].fState), 
-	   arROB[head].fRegValue, 
-	   arROB[head].iRegValue);
-    head++;
-    if(head == NR_ROB_ENT)
-      head = 0;
-  }
 }
 
 //***********************print_rs_status()***********************
@@ -274,6 +233,13 @@ int init_fu()
   memset(&int_unit, 0, sizeof(INT_UNIT));
   memset(&fp_add_unit, 0, sizeof(FP_ADD_UNIT));
   memset(&fp_mult_unit, 0, sizeof(FP_MULT_UNIT));
+
+	load_unit.free_stations = LOAD_RS;
+	store_unit.free_stations = STORE_RS;
+	int_unit.free_stations = INTEGER_RS;
+	fp_add_unit.free_stations = FP_ADD_RS;
+	fp_mult_unit.free_stations = FP_MULT_RS;
+
   
   for(i = 0; i < LOAD_RS; i++)
   {
@@ -314,16 +280,6 @@ int init_fu()
   }
   fp_mult_unit.rs[FP_MULT_RS-1].next = NULL;
   fp_mult_unit.free = &(fp_mult_unit.rs[0]);
-}
-
-//***********************init_rob()***********************
-void init_rob()
-{
-  int i;
-  for(i = 0; i < NR_ROB_ENT; i++)
-  {
-      memset(&arROB[i], 0, sizeof(ROB_ENTRY));
-  }
 }
 
 //***********************clear_flags()***********************
@@ -416,52 +372,6 @@ void clear_flags()
   int_unit.started_one_this_cycle = 0;
   fp_add_unit.started_one_this_cycle = 0;
   fp_mult_unit.started_one_this_cycle = 0;
-}
-
-/********************************************************************************************
-*
-* ROB AND RESERVATION STATION ASSIGNMENT CODE
-*
-*********************************************************************************************/
-//***********************assign_rob()***********************
-ROB_ENTRY * assign_rob(inst_entry instruction) // TODO: Steve, this needs to be replaced
-{
-  ROB_ENTRY * robe;
-  /*
-  robe = &arROB[rob_tail++];
-  rob_tail %= NR_ROB_ENT;
-  
-  robe->iOpcode = robe->pInst->iOpcode;
-  robe->pInst->rgiOperand[0] = instruction.rgiOperand[0];
-  robe->pInst->rgiOperand[1] = instruction.rgiOperand[1];
-  robe->pInst->rgiOperand[2] = instruction.rgiOperand[2];
-  robe->fState = ISSUED;
-  robe->value = 0;
-  
-  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI) // INT dest
-  {
-    rgiReg[robe->pInst->rgiOperand[0]].busy = 1;
-    rgiReg[robe->pInst->rgiOperand[0]].ptr = robe;
-  }
-  else if(robe->pInst->iOpcode == OP_L_D || robe->pInst->iOpcode == OP_ADD_D
-    || robe->pInst->iOpcode == OP_SUB_D || robe->pInst->iOpcode == OP_MUL_D
-    || robe->pInst->iOpcode == OP_DIV_D) // FP dest
-  {
-    rgfReg[robe->pInst->rgiOperand[0]].busy = 1;
-    rgfReg[robe->pInst->rgiOperand[0]].ptr = robe;
-  }
-  avail_rob_entries--;
-  return robe;
-  */
-}
-
-//***********************free_rob()***********************
-void free_rob()
-{
-  memset(&arROB[rob_head], 0, sizeof(ROB_ENTRY));
-  rob_head++;
-  rob_head %= NR_ROB_ENT;
-  avail_rob_entries++;
 }
 
 //***********************assign_load()***********************
@@ -1055,39 +965,3 @@ int update_rs()
   update_fp_add();
   update_fp_mult();
 }
-
-//***********************update_rob()***********************
-/*
-int update_rob() // TODO: need to seperate ROB register status 'file' from actual RF on write_result and commit
-{
-  if(arROB[rob_head].busy == 1 && arROB[rob_head].fState == WRITE_RES)
-  {
-    if(arROB[rob_head].entered_wr_this_cycle == 1)
-      arROB[rob_head].entered_wr_this_cycle = 0;
-    else // commit
-    {
-      arROB[rob_head].fState = COMMIT;
-      if(arROB[rob_head].iOpcode == OP_S_D)
-      {
-	rgliMemLocation[arROB[rob_head].dest / 4] = arROB[rob_head].value; // TODO: get correct mem value, wrong as is!
-      }
-      else if(arROB[rob_head].iOpcode == OP_ADDI || arROB[rob_head].iOpcode == OP_SUBI)
-      {
-	rgiReg[arROB[rob_head].dest].value = (int) arROB[rob_head].value;
-	rgiReg[arROB[rob_head].dest].busy = 0;
-	rgiReg[arROB[rob_head].dest].ptr = NULL;
-      }
-      else if(arROB[rob_head].iOpcode == OP_ADD_D || arROB[rob_head].iOpcode == OP_SUB_D
-	|| arROB[rob_head].iOpcode == OP_MUL_D || arROB[rob_head].iOpcode == OP_DIV_D
-	|| arROB[rob_head].iOpcode == OP_L_D)
-      {
-	rgfReg[arROB[rob_head].dest].value = arROB[rob_head].value;
-	rgfReg[arROB[rob_head].dest].busy = 0;
-	rgfReg[arROB[rob_head].dest].ptr = NULL;
-      }   
-      //else - ignore branches for now
-      free_rob(&arROB[rob_head]);
-    }
-  }
-}
-*/
