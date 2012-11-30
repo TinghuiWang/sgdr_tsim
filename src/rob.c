@@ -139,10 +139,12 @@ int ROB_printEntry(ROB_ENTRY *ent) {
 	printf("Store:%d ", ent->fSb);
 	if(ent->pInst->iOpcode & 0x80) {
 		printf("Value: %8f ", ent->fRegValue);
-		printf("Dest: F%d ", ((fp_reg_entry *) (ent->pARF))->index);
+		if(ent->pARF != NULL) 
+			printf("Dest: F%d ", ((fp_reg_entry *) (ent->pARF))->index);
 	} else {
 		printf("Value: %8d ", ent->iRegValue);
-		printf("Dest: R%d ", ((int_reg_entry *) (ent->pARF))->index);
+		if(ent->pARF != NULL) 
+			printf("Dest: R%d ", ((int_reg_entry *) (ent->pARF))->index);
 	}
 	printf("\n");
 	return 0;
@@ -251,9 +253,10 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse & fUnitUsed) {
-			printf("Cannot inssue two instructions to same unit\n");
+			printf("Structural Hazard Occur\nInstruction Issued: %d\n", i);
 			return i;
 		}
+
 		// Check ROB Availability
 		curROBEntry = ROB_getEntry(rob_tab);
 		if(curROBEntry == NULL) {
@@ -273,6 +276,8 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			return i;
 		}
 		
+		fUnitUsed |= fUnitToUse;
+
 		// Fill in ROB Entry Information
 		curROBEntry->fState = ISSUED;
 		curROBEntry->fSpec = fSpeculate;
@@ -289,7 +294,7 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			curROBEntry->fSb = 0;
 		}
 		
-		assign_load(curROBEntry);
+		assign_to_rs(curROBEntry);
 		
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {

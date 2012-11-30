@@ -84,7 +84,7 @@ void simulate(FILE *fpInAsm)
     update_rs(); 
 	// Update ReOrder Buffer
     update_rob();
-	ROB_Issue(1, fpInAsm);
+	ROB_Issue(NR_INSTR_ISSUE, fpInAsm);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
@@ -167,6 +167,13 @@ int main(int argc, char** argv)
   fpInRegInt = fopen("resources/iRegisters.txt", "r");
 
   init_registers(fpInRegFP, fpInRegInt);
+
+	for (i = 0; i < I_REG_MAX; i++) {
+		rgiReg[i].index = i;
+	}
+	for (i = 0; i < FP_REG_MAX; i++) {
+		rgfReg[i].index = i;
+	}
 
   init_fu(); // zeros out data struct
   ROB_Init(rob_tab); // zeros out data struct

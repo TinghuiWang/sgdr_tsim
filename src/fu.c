@@ -20,11 +20,6 @@
 #include "glo.h"
 
 
-// ROB_ENTRY arROB[NR_ROB_ENT];
-int rob_head = 0;
-int rob_tail = 0;
-int avail_rob_entries = NR_ROB_ENT;
-
 /********************************************************************************************
 *
 * INIT AND UTILITY FUNCTIONS
@@ -35,18 +30,29 @@ int avail_rob_entries = NR_ROB_ENT;
 // To-Do: Change Case Params to Global Definition
 char * op(int op)
 {
-    switch(op)
-    {
-      case(0): return "LOAD.D";
-      case(1): return "MULT.D";
-      case(2): return "ADD.D";
-      case(3): return "STORE.D";
-      case(4): return "SUB.D";
-      case(5): return "ADDI";
-      case(6): return "SUBI";
-      case(7): return "BNEZ";
-      case(8): return "NOP";
-      case(9): return "DIV.D";
+    switch(op) {
+   	case OP_L_D: 
+		return "LOAD.D";
+   	case OP_MUL_D: 
+    	return "MULT.D";
+   	case OP_ADD_D: 
+    	return "ADD.D";
+   	case OP_S_D: 
+    	return "STORE.D";
+   	case OP_SUB_D: 
+    	return "SUB.D";
+   	case OP_ADDI: 
+    	return "ADDI";
+   	case OP_SUBI: 
+    	return "SUBI";
+   	case OP_BNEZ: 
+    	return "BNEZ";
+   	case OP_NOP: 
+    	return "NOP";
+   	case OP_DIV_D: 
+    	return "DIV.D";
+   	default: 
+		return "";
     }
 }
 
@@ -77,7 +83,7 @@ void print_rs_status()
   rs = load_unit.active;
   while(rs)
   {
-    printf("LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%p qk=%p dest=%p waiting_for_operands=%d\n", rs->id, rs->busy, 
+    printf("LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%x qk=%x dest=%x waiting_for_operands=%d\n", rs->id, rs->busy, 
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;

@@ -23,7 +23,8 @@
 #define FALSE			0
 
 #define NR_ROB_ENT		32
-#define NR_THREAD	1
+#define NR_THREAD	    1
+#define NR_INSTR_ISSUE  4
 
 #define FP_ADD_RS		4
 #define FP_MULT_RS		3
