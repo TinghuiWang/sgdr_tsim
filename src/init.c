@@ -49,6 +49,22 @@ void get_memory_locations(FILE *fpAsm)
 	}
 }
 
+FILE *init_outfile(FILE *fpAsm)
+{
+	char szTemp[50];
+	FILE * fpOut;
+	fpOut = fopen("Results.txt", "w+");
+	rewind(fpAsm);
+	while(!feof(fpAsm))
+	{
+		fgets(szTemp, 50, fpAsm);
+		fprintf(fpOut, "%s", szTemp);
+	}
+	rewind(fpAsm);
+	rewind(fpOut);
+	return fpOut;
+}
+
 void init_registers(FILE *fpFReg, FILE *fpIReg)
 {
 	char szLine[10];
@@ -178,6 +194,23 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	}
 
 	return temp;
+}
+
+void mem_store(int iAddr, int iData, FILE *fpOut)
+{
+	char szTemp[20];
+	char szTemp2[20];
+	int i;
+	sprintf(szTemp, "%d %d", iAddr, iData);
+	fseek(fpOut,rgliMemLocation[(iAddr/4)], SEEK_SET);
+	fgets(szTemp2, 20, fpOut);
+	while(strlen(szTemp) < (strlen(szTemp2) -1))
+	{
+		strcat(szTemp, " "); 
+	}
+	strcat(szTemp, "\n");
+	fseek(fpOut,rgliMemLocation[(iAddr/4)], SEEK_SET);
+	fprintf(fpOut, "%s", szTemp);
 }
 
 int symbol_to_addr (char * pszOperand)
