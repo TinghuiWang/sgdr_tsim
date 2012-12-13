@@ -45,6 +45,8 @@ char * op(int op)
     	return "ADDI";
    	case OP_SUBI: 
     	return "SUBI";
+   	case OP_SLTI: 
+    	return "SLTI";
    	case OP_BNEZ: 
     	return "BNEZ";
    	case OP_NOP: 
@@ -480,7 +482,7 @@ int assign_int(ROB_ENTRY * robe, int thread)
   rs->iOpcode = robe->pInst->iOpcode;
   rs->waiting_for_operands = 0;
   
-  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI)
+  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI || robe->pInst->iOpcode == OP_SLTI)
   {
     if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
@@ -692,7 +694,7 @@ void write_result(RES_STATION * rs)
 	res->waiting_for_operands = 0;
       }
     }
-    else // ADDI SUBI
+    else // ADDI SUBI SLTI
     {
       if(res->reg_qj == rs->dest)
       {
@@ -821,7 +823,7 @@ int update_store()
 	rs->dest->fRegValue = rs->reg_vk;
 	printf("**update_store(): value=%f to be stored at mem=%d\n", rs->reg_vk, (int)(rs->reg_vj));
 	rs->dest->entered_wr_this_cycle = 1;
-	write_result(rs);
+	//write_result(rs); no other instrs are waiting for a store to complete
       }
     }
     rs = rs->next;
@@ -862,8 +864,15 @@ int update_int()
 	{
 	  if(rs->iOpcode == OP_ADDI) // add immediate
 	    rs->dest->iRegValue = (int)(rs->reg_vj + rs->reg_vk);
-	  else // subtract immediate
+	  else if(rs->iOpcode == OP_SUBI) // subtract immediate
 	    rs->dest->iRegValue = (int)(rs->reg_vj - rs->reg_vk);
+	  else // slti immediate
+          {
+            if(rs->reg_vj < rs->reg_vk)
+	      rs->dest->iRegValue = 1;
+            else
+	      rs->dest->iRegValue = 0;
+          }
 	  printf("**update_int(): value=%d\n", rs->dest->iRegValue);
 	  rs->dest->entered_wr_this_cycle = 1;
 	  write_result(rs);
