@@ -28,6 +28,8 @@
 
 #define DEBUG_ROB_VERBOSE
 
+int nrCommit;
+
 int ROB_Init(ROB_TABLE *rob) {
 	int i;
 
@@ -174,10 +176,6 @@ int ROB_print(ROB_TABLE *rob) {
 }
 
 int ROB_DoCommit(ROB_ENTRY *entry) {
-	if(entry->fSb) {
-		// Perform Store
-		return;
-	}
 	if(entry->pInst->iOpcode & 0x80) {
 		fp_reg_entry* prgfReg = entry->pARF;
 		prgfReg->value = entry->fRegValue;
@@ -202,7 +200,10 @@ int ROB_TryCommit(ROB_ENTRY *entry) {
 			entry->entered_wr_this_cycle = 0;
 		} else {	// COmmit
 			entry->fState = COMMIT;
-			ROB_DoCommit(entry);
+			if(nrCommit < NR_INSTR_ISSUE ) {
+				ROB_DoCommit(entry);
+				nrCommit++;
+			}
 		}
 	}
 }
@@ -243,31 +244,41 @@ int checkUnit(inst_entry *instr) {
  *  @return - actual number of instructions issued
  */
 
-int ROB_Issue(int InstrNum, FILE *fpAsm) {
-	int i;
+int ROB_Issue(int InstrNum, FILE *fp) {
+	int i, j, k;
 	inst_entry *curInst;
 	ROB_ENTRY *curROBEntry;
 	int fUnitUsed = 0;
 	int fUnitToUse = 0;
-	
-	for (i = 0; i < InstrNum; i++) {
+	int curThreadId = 0;
+	int fThreadBlock[NR_THREAD];
+
+	for (i = 0; i < NR_THREAD; i++) {
+		fThreadBlock[i] = 0;
+	}
+
+	i = 0;	
+	while (i < InstrNum) {
 		curInst = (inst_entry*) malloc (sizeof(struct inst_entry));
-		*curInst = inst_fetch(PC, fpAsm);
+		*curInst = inst_fetch(PC[curThreadId], fp);
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse & fUnitUsed) {
 			printf("Structural Hazard Occur\nInstruction Issued: %d\n", i);
-			return i;
+			free(curInst);
+			fThreadBlock[curThreadId] = 1;
+			goto get_ready_for_next_instr;
 		}
 
 		// Check ROB Availability
-		curROBEntry = ROB_getEntry(rob_tab);
+		curROBEntry = ROB_getEntry(&rob_tab[curThreadId]);
 		if(curROBEntry == NULL) {
 			#ifdef DEBUG_ROB_VERBOSE
 			printf("Re-order Buffer is full. No Available Entry Found.\n");
 			#endif
 			free(curInst);
-			return i;
+			fThreadBlock[curThreadId] = 1;
+			goto get_ready_for_next_instr;
 		}
 
 		// Check Reservation Avilability
@@ -276,14 +287,16 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			printf("No Reservation Station Found\n");
 			#endif
 			free(curInst);
-			return i;
+			fThreadBlock[curThreadId] = 1;
+			goto get_ready_for_next_instr;
 		}
-		
+
+issue_instr:		
 		fUnitUsed |= fUnitToUse;
 
 		// Fill in ROB Entry Information
 		curROBEntry->fState = ISSUED;
-		curROBEntry->fSpec = fSpeculate;
+		curROBEntry->fSpec = fSpeculate[curThreadId];
 		curROBEntry->iRegValue = 0;
 		curROBEntry->fRegValue = 0;
 		curROBEntry->entered_wr_this_cycle = 0;
@@ -292,36 +305,59 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 	
 		if(curInst->iOpcode == OP_S_D) {
 			curROBEntry->fSb = 1;
-			curROBEntry->pARF = NULL;
+				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
 		} else {
 			curROBEntry->fSb = 0;
 		}
 		
-		assign_to_rs(curROBEntry);
+		assign_to_rs(curROBEntry, curThreadId);
 		
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {
-				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
+				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
+				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
 			} else {
-				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
+				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
+				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
 			}
 		}
+		
+		if(curInst->iOpcode == OP_BNEZ) {
+			fSpeculate[curThreadId] = 1;
+		}
 	
-		// Take care of the branch
-		if(curInst->iOpcode == OP_BNEZ)
-			fSpeculate = 1;
+get_ready_for_next_instr:
+		// Check for Next Thread:
+		i++;
+		j = 0;
 	
-		PC += 4;
+		for(k = 0; k < NR_THREAD; k++) {
+			j += fThreadBlock[k];
+		}
+		if(j == NR_THREAD)
+			return i;
+		do {
+			curThreadId ++;
+			if(curThreadId == NR_THREAD) {
+				curThreadId = 0;
+			}
+		} while(fThreadBlock[curThreadId] == 0);
 	}
 }
 
-int update_rob() {
+int update_rob(FILE* fp) {
 	int i;
 
+	nrCommit = 0;
 	// Commit results
-	for(i = 0; i < NR_ROB_ENT; i++) {
+	for(i = 0; i < NR_ROB_ENT * NR_THREAD; i++) {
 		ROB_TryCommit(&rob_tab->arROB[i]);
+	}
+	for(i=0; i< NR_ROB_ENT * NR_THREAD; i++) {
+		if(rob_tab->arROB[i].fSb) {
+			// Perform Store
+			mem_store(rob_tab->arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab->arROB[i].pARF))->value,fpOutResult);
+			return;
+		}
 	}
 }

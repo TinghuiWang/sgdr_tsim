@@ -31,16 +31,16 @@
 #define IS_FLAG(flag)  \
 	strcmp(argv[i], flag)
 
-int PC = 0;
 int branch = 0;
 
 /* *********************************** */
 /*           Global Variables          */
 /* *********************************** */
 
+int PC[NR_THREAD];
 // Architecture Register File
-int_reg_entry rgiReg[I_REG_MAX];
-fp_reg_entry rgfReg[FP_REG_MAX];
+int_reg_entry rgiReg[I_REG_MAX * NR_THREAD];
+fp_reg_entry rgfReg[FP_REG_MAX * NR_THREAD];
 
 // Function Units
 LOAD_UNIT load_unit;
@@ -53,10 +53,11 @@ FP_MULT_UNIT fp_mult_unit;
 ROB_TABLE rob_tab[NR_THREAD];
 
 // Global Flag
-int fSpeculate = 0;
+int fSpeculate[NR_THREAD];
 
 // Input file
 FILE *fpInAsm = NULL;
+FILE *fpOutResult = NULL;
 
 /* ************************************ */
 /*         Functions & Procedures       */
@@ -68,13 +69,16 @@ printUsage() {
 	printf("sgdr_tsim -h\n\n");
 }
 
-void simulate(FILE *fpInAsm)
+void simulate(FILE *fp)
 {
   int i;
   int cycles = 1;
   inst_entry stalled_instruction;
   inst_entry instruction;
   char stalled = 0;
+
+  PC[0] = PC0_INIT_VAL;
+  PC[1] = PC1_INIT_VAL;
 
   for(i = 0; i < 6; i++) // TODO: needs to be changed to while(!end of program) loop
   {
@@ -83,8 +87,8 @@ void simulate(FILE *fpInAsm)
 	// Update Reservation Station
     update_rs(); 
 	// Update ReOrder Buffer
-    update_rob();
-	ROB_Issue(NR_INSTR_ISSUE, fpInAsm);
+    update_rob(fp);
+	ROB_Issue(NR_INSTR_ISSUE, fp);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
@@ -162,6 +166,7 @@ int main(int argc, char** argv)
   // PARSER_CreateSymbolTable();
   fpInAsm = fopen("resources/Instructions.asm", "r");
   get_memory_locations(fpInAsm);
+  fpOutResult = init_outfile(fpInAsm);
 
   fpInRegFP = fopen("resources/fRegisters.txt", "r");
   fpInRegInt = fopen("resources/iRegisters.txt", "r");
@@ -175,9 +180,14 @@ int main(int argc, char** argv)
 		rgfReg[i].index = i;
 	}
 
+	for (i = 0; i < NR_THREAD; i++) {
+		PC[i] = 0;
+		fSpeculate[i] = 0;
+	}
+
   init_fu(); // zeros out data struct
   ROB_Init(rob_tab); // zeros out data struct
   ROB_print(rob_tab);
   print_rs_status();
-  simulate(fpInAsm);
+  simulate(fpOutResult);
 }

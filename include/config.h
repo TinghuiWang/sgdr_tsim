@@ -22,8 +22,11 @@
 #define TRUE			1
 #define FALSE			0
 
+#define PC0_INIT_VAL 0
+#define PC1_INIT_VAL 144
+
 #define NR_ROB_ENT		32
-#define NR_THREAD	    1
+#define NR_THREAD	   	1 
 #define NR_INSTR_ISSUE  4
 
 #define FP_ADD_RS		4
