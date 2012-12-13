@@ -49,8 +49,8 @@
 #define STORE_PIPELINED			1
 #define INTEGER_PIPELINED		1
 
-#define FP_REG_MAX		16
-#define I_REG_MAX		16
+#define FP_REG_MAX		32
+#define I_REG_MAX		32
 
 // OPCODES
 #define OP_MEM		-1 //Indicates only memory
