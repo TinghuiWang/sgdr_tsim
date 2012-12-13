@@ -85,7 +85,7 @@ void print_rs_status()
   rs = load_unit.active;
   while(rs)
   {
-    printf("LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%x qk=%x dest=%x waiting_for_operands=%d\n", rs->id, rs->busy, 
+    printf("(%p)LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%x qk=%x dest=%x waiting_for_operands=%d\n", rs, rs->id, rs->busy, 
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;

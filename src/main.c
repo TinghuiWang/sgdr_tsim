@@ -72,7 +72,7 @@ printUsage() {
 
 void simulate(FILE *fp)
 {
-  int i;
+  int i, j;
   int cycles = 1;
   inst_entry stalled_instruction;
   inst_entry instruction;
@@ -90,16 +90,22 @@ void simulate(FILE *fp)
 	// Update ReOrder Buffer
     update_rob(fp);
 	ROB_Issue(NR_INSTR_ISSUE, fp);
+	print_rs_status();
+	fflush(stdout);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
     print_reg_status();
-    ROB_print(rob_tab);
+	for(j = 0; j < NR_THREAD; j++) {
+		printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
+		ROB_print(&rob_tab[j]);
+	}
     print_rs_status();
 
 	// Move on to Next Cycle
     cycles++;
-	//getc(stdin);
+	getc(stdin);
+	fflush(stdout);
   }
   // print stats now
 }
@@ -194,7 +200,7 @@ int main(int argc, char** argv)
 	
 	for(i = 0; i < NR_THREAD; i++) {
 		printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", i);
-		ROB_print(rob_tab);
+		ROB_print(&rob_tab[i]);
 	}
 	print_rs_status();
 	simulate(fpOutResult);
