@@ -44,9 +44,9 @@ extern FP_MULT_UNIT fp_mult_unit;
 
 // Temporary Variables
 extern int fSpeculate;
-extern int PC;
-extern int branch;
+extern int PC[2];
 extern void* pExUnitHeader;
 extern void* pROB;
+extern int write_result_counter;
 
 #endif

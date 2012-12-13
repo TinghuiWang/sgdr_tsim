@@ -88,7 +88,7 @@ typedef struct
 
 // prototypes
 int init_fu();
-int assign_to_rs(ROB_ENTRY * robe);
+int assign_to_rs(ROB_ENTRY * robe, int thread);
 int update_rs();
 char * op(int op);
 

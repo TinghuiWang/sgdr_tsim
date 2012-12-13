@@ -297,7 +297,7 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			curROBEntry->fSb = 0;
 		}
 		
-		assign_to_rs(curROBEntry);
+		assign_to_rs(curROBEntry, 0); // TODO: be replaced with actual thread number
 		
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {
@@ -309,11 +309,7 @@ int ROB_Issue(int InstrNum, FILE *fpAsm) {
 			}
 		}
 	
-		// Take care of the branch
-		if(curInst->iOpcode == OP_BNEZ)
-			fSpeculate = 1;
-	
-		PC += 4;
+		PC[0] += 4;
 	}
 }
 
