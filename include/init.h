@@ -38,6 +38,6 @@ void get_memory_locations(FILE *fpAsm);
 FILE *init_outfile( FILE *fpAsm);
 void init_registers(FILE *fpFReg, FILE *fpIReg);
 inst_entry inst_fetch(int iAddr, FILE *fpAsm);
-void mem_store(int iAddr, int iData, FILE *fpOut)
+void mem_store(int iAddr, int iData, FILE *fpOut);
 
 #endif

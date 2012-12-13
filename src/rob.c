@@ -163,12 +163,13 @@ int ROB_printList(ROB_ENTRY *list) {
 }
 
 int ROB_print(ROB_TABLE *rob) {	
-	printf("Re-Order Buffer 0x%x\n", rob);
+	printf("\nRe-Order Buffer 0x%x\n", rob);
 	printf("ROB& Available Entry (for Next Cycle): %d\n", rob->iAvail);
 	printf("ROB& Busy List:\n");
 	ROB_printList(rob->busy);
-	printf("ROB& Free List:");
-	ROB_printList(rob->free);
+	//printf("ROB& Free List:\n");
+	//ROB_printList(rob->free);
+	printf("\n");
 	return 0;
 }
 
@@ -188,6 +189,8 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 		prgiReg->busy = 0;
 		prgiReg->ptr = NULL; 
 	}
+
+	entry->fState = COMMIT;
 	// Mark the entry available for Next Cycle
 	entry->available_next_cycle = 1;
 	return;

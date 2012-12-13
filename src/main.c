@@ -94,7 +94,7 @@ void simulate(FILE *fpInAsm)
 
 	// Move on to Next Cycle
     cycles++;
-	getc(stdin);
+	//getc(stdin);
   }
 }
 
