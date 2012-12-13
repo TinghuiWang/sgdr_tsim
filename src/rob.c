@@ -31,8 +31,8 @@
 int nrCommit;
 
 int ROB_Init(ROB_TABLE *rob) {
-	int i;
-
+	int i, j;
+	
 	rob->iAvail = NR_ROB_ENT;
 	rob->busy = NULL;
 	rob->free = rob->arROB;
@@ -263,6 +263,10 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 		*curInst = inst_fetch(PC[curThreadId], fp);
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
+		if(fUnitToUse == UNIT_EOP) {
+			fEOP[curThreadId] = 1;
+			goto get_ready_for_next_instr;
+		}
 		if(fUnitToUse & fUnitUsed) {
 			printf("Structural Hazard Occur\nInstruction Issued: %d\n", i);
 			free(curInst);
@@ -324,15 +328,17 @@ issue_instr:
 		
 		if(curInst->iOpcode == OP_BNEZ) {
 			fSpeculate[curThreadId] = 1;
+		} else {
+			PC[curThreadId] += 4;
 		}
+		i++;
 	
 get_ready_for_next_instr:
 		// Check for Next Thread:
-		i++;
 		j = 0;
 	
 		for(k = 0; k < NR_THREAD; k++) {
-			j += fThreadBlock[k];
+			j += fThreadBlock[k] | fEOP[k];
 		}
 		if(j == NR_THREAD)
 			return i;
@@ -341,23 +347,25 @@ get_ready_for_next_instr:
 			if(curThreadId == NR_THREAD) {
 				curThreadId = 0;
 			}
-		} while(fThreadBlock[curThreadId] == 0);
+		} while(fThreadBlock[curThreadId] == 1 || fEOP[curThreadId] == 1);
 	}
 }
 
 int update_rob(FILE* fp) {
-	int i;
+	int i,j;
 
 	nrCommit = 0;
 	// Commit results
-	for(i = 0; i < NR_ROB_ENT * NR_THREAD; i++) {
-		ROB_TryCommit(&rob_tab->arROB[i]);
-	}
-	for(i=0; i< NR_ROB_ENT * NR_THREAD; i++) {
-		if(rob_tab->arROB[i].fSb) {
-			// Perform Store
-			mem_store(rob_tab->arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab->arROB[i].pARF))->value,fpOutResult);
-			return;
+	for(j = 0; j < NR_THREAD; j++) {
+		for(i = 0; i < NR_ROB_ENT; i++) {
+			ROB_TryCommit(&rob_tab[j].arROB[i]);
+		}
+		for(i=0; i< NR_ROB_ENT; i++) {
+			if(rob_tab[j].arROB[i].fSb == 1) {
+				// Perform Store
+				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value,fpOutResult);
+				return;
+			}
 		}
 	}
 }

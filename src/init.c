@@ -70,22 +70,25 @@ void init_registers(FILE *fpFReg, FILE *fpIReg)
 	char szLine[10];
 	char *pszReg;
 	char *pszVal;
-	while(!feof(fpFReg))
+	int i = 0;
+	while(!feof(fpFReg) && i < NR_THREAD * FP_REG_MAX)
 	{
 		fgets(szLine, 10, fpFReg);
 		pszReg = strtok(szLine, " ");
 		pszVal = strtok(NULL, " \n");
 		pszReg = strtok(pszReg, "F");
 		rgfReg[atoi(pszReg)].value = atoi(pszVal);
+		i++;
 	}
-
-	while(!feof(fpIReg))
+	i = 0;
+	while(!feof(fpIReg) && i < NR_THREAD * I_REG_MAX)
 	{
 		fgets(szLine, 10, fpIReg);
 		pszReg = strtok(szLine, " ");
 		pszVal = strtok(NULL, " \n");
 		pszReg = strtok(pszReg, "R ");
 		rgiReg[atoi(pszReg)].value = atoi(pszVal);
+		i++;
 	}
 }
 

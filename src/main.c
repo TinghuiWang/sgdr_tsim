@@ -38,6 +38,7 @@ int write_result_counter = 0;
 /* *********************************** */
 
 int PC[NR_THREAD];
+int fEOP[NR_THREAD];
 // Architecture Register File
 int_reg_entry rgiReg[I_REG_MAX * NR_THREAD];
 fp_reg_entry rgfReg[FP_REG_MAX * NR_THREAD];
@@ -82,7 +83,7 @@ void simulate(FILE *fp)
 
   for(i = 0; i < 6; i++) // TODO: needs to be changed to while(!end of program) loop
   {
-    printf("\n\n**************************** CYCLE=%d | PC=%d ****************************\n\n", cycles, PC);
+    printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	
 	// Update Reservation Station
     update_rs(); 
@@ -105,90 +106,96 @@ void simulate(FILE *fp)
 
 int main(int argc, char** argv) 
 {	
-  int i;
-  int fGui = 0;
-  int fDebug = 0;
-  int fStep = 0;
-  int status = 0;
-  char *pchInAsmFile = NULL;
-  char *pchInitMemFile = NULL;
-  char *pchInitRegFile = NULL;
-  FILE *fpInRegFP = NULL;
-  FILE *fpInRegInt = NULL;
-  FILE *fpInMem = NULL;
-
-  if(argc == 1) {
-	  printUsage();
-  } 
-  /* Parse options
-    * -x: start GUI
-    * -g:   Debugging Mode
-	* -s:   Step Mode
-    */
-  for (i = 1; i < argc; i++) {
-    if(argv[i][0] == '-') {
-      switch(argv[i][1]) {
-	case 'x':
-	  fGui = 1;
-	  break;
-	case 'g':
-	  fDebug = 1;
-	  break;
-	case 's':
-	  fStep = 1;
-	  break;
-	case 'r':
-	  i++;
-	  pchInitRegFile = argv[i];
-	  break;
-	case 'm':
-	  i++;
-	  pchInitMemFile = argv[i];
-	  break;
-	case 'S':
-	  i++;
-	  pchInAsmFile = argv[i];
-	  break;
-	case 'h':
-	  printUsage();
-	  return 0;
-	default:
+	int i;
+	int fGui = 0;
+	int fDebug = 0;
+	int fStep = 0;
+	int status = 0;
+	char *pchInAsmFile = NULL;
+	char *pchInitMemFile = NULL;
+	char *pchInitRegFile = NULL;
+	FILE *fpInRegFP = NULL;
+	FILE *fpInRegInt = NULL;
+	FILE *fpInMem = NULL;
+	
+	if(argc == 1) {
+	    printUsage();
+	} 
+	/* Parse options
+	  * -x: start GUI
+	  * -g:   Debugging Mode
+	  * -s:   Step Mode
+	  */
+	for (i = 1; i < argc; i++) {
+	  if(argv[i][0] == '-') {
+	    switch(argv[i][1]) {
+	  case 'x':
+	    fGui = 1;
+	    break;
+	  case 'g':
+	    fDebug = 1;
+	    break;
+	  case 's':
+	    fStep = 1;
+	    break;
+	  case 'r':
+	    i++;
+	    pchInitRegFile = argv[i];
+	    break;
+	  case 'm':
+	    i++;
+	    pchInitMemFile = argv[i];
+	    break;
+	  case 'S':
+	    i++;
+	    pchInAsmFile = argv[i];
+	    break;
+	  case 'h':
+	    printUsage();
+	    return 0;
+	  default:
+	    printf("error: Unknown Option: %s\n", argv[i]);
+	    return -1;
+	    }
+	  } else {
 	  printf("error: Unknown Option: %s\n", argv[i]);
 	  return -1;
-      }
-    } else {
-	printf("error: Unknown Option: %s\n", argv[i]);
-	return -1;
-    }
-  }
-
-  // Symbol Table should be created ahead of fetch instructions
-  // Syntax Checking on the fly
-  // PARSER_CreateSymbolTable();
-  fpInAsm = fopen("resources/Instructions.asm", "r");
-  get_memory_locations(fpInAsm);
-  fpOutResult = init_outfile(fpInAsm);
-
-  fpInRegFP = fopen("resources/fRegisters.txt", "r");
-  fpInRegInt = fopen("resources/iRegisters.txt", "r");
-
-  init_registers(fpInRegFP, fpInRegInt);
-
-	for (i = 0; i < I_REG_MAX; i++) {
-		rgiReg[i].index = i;
+	  }
 	}
-	for (i = 0; i < FP_REG_MAX; i++) {
-		rgfReg[i].index = i;
+	
+	// Symbol Table should be created ahead of fetch instructions
+	// Syntax Checking on the fly
+	// PARSER_CreateSymbolTable();
+	fpInAsm = fopen("resources/Instructions.asm", "r");
+	get_memory_locations(fpInAsm);
+	fpOutResult = init_outfile(fpInAsm);
+	
+	fpInRegFP = fopen("resources/fRegisters.txt", "r");
+	fpInRegInt = fopen("resources/iRegisters.txt", "r");
+	
+	init_registers(fpInRegFP, fpInRegInt);
+	
+	  for (i = 0; i < I_REG_MAX; i++) {
+	  	rgiReg[i].index = i;
+	  }
+	  for (i = 0; i < FP_REG_MAX; i++) {
+	  	rgfReg[i].index = i;
+	  }
+	
+	  for (i = 0; i < NR_THREAD; i++) {
+	  	PC[i] = 0;
+	  	fSpeculate[i] = 0;
+		fEOP[i] = 0;
+	  }
+	
+	init_fu(); // zeros out data struct
+	for(i = 0; i < NR_THREAD; i++) 
+	    ROB_Init(&rob_tab[i]); // zeros out data struct
+	
+	for(i = 0; i < NR_THREAD; i++) {
+		printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", i);
+		ROB_print(rob_tab);
 	}
-
-	for (i = 0; i < NR_THREAD; i++) {
-		PC[i] = 0;
-		fSpeculate[i] = 0;
-	}
-
-  init_fu(); // zeros out data struct
-  ROB_Init(rob_tab); // zeros out data struct
-  ROB_print(rob_tab);
-  print_rs_status();
-  simulate(fpOutResult);
+	print_rs_status();
+	simulate(fpOutResult);
 }

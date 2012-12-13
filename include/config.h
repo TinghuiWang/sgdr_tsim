@@ -26,7 +26,7 @@
 #define PC1_INIT_VAL 144
 
 #define NR_ROB_ENT		32
-#define NR_THREAD	   	1 
+#define NR_THREAD	   	2 
 #define NR_INSTR_ISSUE  4
 
 #define FP_ADD_RS		4
@@ -49,8 +49,8 @@
 #define STORE_PIPELINED			1
 #define INTEGER_PIPELINED		1
 
-#define FP_REG_MAX		32
-#define I_REG_MAX		32
+#define FP_REG_MAX		16
+#define I_REG_MAX		16
 
 // OPCODES
 #define OP_MEM		-1 //Indicates only memory
@@ -74,6 +74,7 @@
 #define UNIT_INT		0x04
 #define UNIT_FP_ADD		0x08
 #define UNIT_FP_MULT	0x10
+#define UNIT_EOP		0x20
 
 //STATES
 #define ISSUED		0

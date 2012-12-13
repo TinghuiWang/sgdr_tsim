@@ -44,6 +44,7 @@ extern FP_MULT_UNIT fp_mult_unit;
 
 // Temporary Variables
 extern int fSpeculate[NR_THREAD];
+extern int fEOP[NR_THREAD];
 extern int PC[NR_THREAD];
 extern int branch;
 extern void* pExUnitHeader;

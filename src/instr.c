@@ -21,6 +21,10 @@ int utGetUnitTypeForInstr(inst_entry *inst) {
 		return UNIT_INT;
 	case OP_BNEZ:
 		return UNIT_INT;
+	case OP_SLTI:
+		return UNIT_INT;
+	case OP_EOP:
+		return UNIT_EOP;
 	default:
 		printf("UnitType: Cannot handle Opcode %d\n", inst->iOpcode);
 		return -1;
