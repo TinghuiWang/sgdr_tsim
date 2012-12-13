@@ -45,6 +45,8 @@ char * op(int op)
     	return "ADDI";
    	case OP_SUBI: 
     	return "SUBI";
+   	case OP_SLTI: 
+    	return "SLTI";
    	case OP_BNEZ: 
     	return "BNEZ";
    	case OP_NOP: 
@@ -463,7 +465,7 @@ int assign_store(ROB_ENTRY * robe)
 }
 
 //***********************assign_int()***********************
-int assign_int(ROB_ENTRY * robe)
+int assign_int(ROB_ENTRY * robe, int thread)
 {
   RES_STATION * rs;
   
@@ -480,7 +482,7 @@ int assign_int(ROB_ENTRY * robe)
   rs->iOpcode = robe->pInst->iOpcode;
   rs->waiting_for_operands = 0;
   
-  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI)
+  if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI || robe->pInst->iOpcode == OP_SLTI)
   {
     if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
@@ -511,7 +513,10 @@ int assign_int(ROB_ENTRY * robe)
       rs->reg_qj = NULL;
     }
     // TODO: get mem addr from symbol table for branch
-    //rs->reg_vk = (int) symbol_table(robe->pInst->rgiOperand[2]);
+    rs->reg_vk = (int) robe->pInst->rgiOperand[1];
+    if((int) rs->reg_vj != 0) // Branch if vj not equal to zero
+      PC[thread] = (int) rs->reg_vk; // TODO: coordinate this line with the branch vk assignment in assign_int()
+    printf("**assign_int(): pc[%d]=%d\n", thread, PC[thread]);
   }
   
   rs->dest = robe;
@@ -613,7 +618,7 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 }
 
 //***********************assign_to_rs()***********************
-int assign_to_rs(ROB_ENTRY *rob_ent)
+int assign_to_rs(ROB_ENTRY *rob_ent, int thread)
 {
 	int i;
 	i = utGetUnitTypeForInstr(rob_ent->pInst);
@@ -623,7 +628,7 @@ int assign_to_rs(ROB_ENTRY *rob_ent)
 	case UNIT_STORE:
     	return assign_store(rob_ent);
 	case UNIT_INT:
-    	return assign_int(rob_ent);
+    	return assign_int(rob_ent, thread);
 	case UNIT_FP_ADD:
     	return assign_fp_add(rob_ent);
 	case UNIT_FP_MULT:
@@ -643,6 +648,7 @@ int assign_to_rs(ROB_ENTRY *rob_ent)
 void write_result(RES_STATION * rs)
 {
   printf("**write_result(): %p is done\n", rs->dest);
+  write_result_counter++;
   RES_STATION * res;
   res = load_unit.active;
   while(res)
@@ -688,7 +694,7 @@ void write_result(RES_STATION * rs)
 	res->waiting_for_operands = 0;
       }
     }
-    else // ADDI SUBI
+    else // ADDI SUBI SLTI
     {
       if(res->reg_qj == rs->dest)
       {
@@ -814,10 +820,10 @@ int update_store()
 	rs->dest->fState = WRITE_RES;
 	// TODO: get correct mem val
 	rs->dest->pInst->rgiOperand[0] = rs->reg_vj; // offset was already computed in vj
-	rs->dest->iRegValue = rs->reg_vk;
+	rs->dest->fRegValue = rs->reg_vk;
 	printf("**update_store(): value=%f to be stored at mem=%d\n", rs->reg_vk, (int)(rs->reg_vj));
 	rs->dest->entered_wr_this_cycle = 1;
-	write_result(rs);
+	//write_result(rs); no other instrs are waiting for a store to complete
       }
     }
     rs = rs->next;
@@ -851,10 +857,6 @@ int update_int()
 	
 	if(rs->iOpcode == OP_BNEZ) // branch
 	{
-	  if((int) rs->reg_vj != 0) // Branch if vj not equal to zero
-	    PC = (int) rs->reg_vk; // TODO: coordinate this line with the branch vk assignment in assign_int()
-	  branch = 0; // allow IF to continue in simulate()
-	  printf("**update_int(): pc=%d\n", PC);
 	  rs->dest->entered_wr_this_cycle = 1;
 	  // don't send branch to write result, not needed by any other res station
 	}
@@ -862,8 +864,15 @@ int update_int()
 	{
 	  if(rs->iOpcode == OP_ADDI) // add immediate
 	    rs->dest->iRegValue = (int)(rs->reg_vj + rs->reg_vk);
-	  else // subtract immediate
+	  else if(rs->iOpcode == OP_SUBI) // subtract immediate
 	    rs->dest->iRegValue = (int)(rs->reg_vj - rs->reg_vk);
+	  else // slti immediate
+          {
+            if(rs->reg_vj < rs->reg_vk)
+	      rs->dest->iRegValue = 1;
+            else
+	      rs->dest->iRegValue = 0;
+          }
 	  printf("**update_int(): value=%d\n", rs->dest->iRegValue);
 	  rs->dest->entered_wr_this_cycle = 1;
 	  write_result(rs);

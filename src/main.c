@@ -31,7 +31,7 @@
 #define IS_FLAG(flag)  \
 	strcmp(argv[i], flag)
 
-int branch = 0;
+int write_result_counter = 0;
 
 /* *********************************** */
 /*           Global Variables          */
@@ -100,6 +100,7 @@ void simulate(FILE *fp)
     cycles++;
 	//getc(stdin);
   }
+  // print stats now
 }
 
 int main(int argc, char** argv) 

@@ -63,7 +63,10 @@
 #define OP_ADDI		0x00
 #define OP_SUBI		0x01
 #define OP_BNEZ		0x02
-#define OP_NOP		0x04
+#define OP_SLTI		0x04
+#define OP_NOP		0x08
+#define OP_EOP		0x10
+
 
 // UNIT_TYPE
 #define UNIT_LOAD		0x01

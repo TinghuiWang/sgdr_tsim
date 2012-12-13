@@ -48,5 +48,6 @@ extern int PC[NR_THREAD];
 extern int branch;
 extern void* pExUnitHeader;
 extern void* pROB;
+extern int write_result_counter;
 
 #endif
