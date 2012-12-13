@@ -783,7 +783,7 @@ int update_load()
 	rs->busy = 0;
 	rs->dest->fState = WRITE_RES;
 	// TODO: get correct mem val
-	instr = inst_fetch((int)(rs->reg_vj + rs->reg_vk), fpInAsm);
+	instr = inst_fetch((int)(rs->reg_vj + rs->reg_vk), fpOutResult);
 	rs->dest->fRegValue = instr.rgiOperand[0];
 	printf("**update_load(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;

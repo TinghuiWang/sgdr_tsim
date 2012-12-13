@@ -123,6 +123,10 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	{
 		temp.iOpcode = OP_ADD_D;
 	}
+	else if(strcmp(pszName, "DIV.D") == 0)
+	{
+		temp.iOpcode = OP_DIV_D;
+	}
 	else if(strcmp(pszName, "S.D") == 0)
 	{
 		temp.iOpcode = OP_S_D;
