@@ -140,9 +140,17 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	{
 		temp.iOpcode = OP_BNEZ; 
 	}
+	else if(strcmp(pszName, "SLTI") == 0)
+	{
+		temp.iOpcode = OP_SLTI;
+	}
 	else if(strcmp(pszName, "NOP") == 0)
 	{
 		temp.iOpcode = OP_NOP;
+	}
+	else if(strcmp(pszName, "EOP") == 0)
+	{
+		temp.iOpcode = OP_EOP;
 	}
 	else
 	{
@@ -153,7 +161,7 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	{
 		temp.rgiOperand[0] = atoi(pszName);
 	}
-	else
+	else if(temp.iOpcode != OP_NOP && temp.iOpcode != OP_EOP)
 	{
 		if(rgszOperand[0] != NULL)
 		{
