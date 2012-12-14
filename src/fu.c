@@ -125,13 +125,13 @@ void print_rs_status()
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;
-  }
-  /* this code is to print ALL reservation stations, both inactive (not busy) and active (busy)
+  }/*
+  // this code is to print ALL reservation stations, both inactive (not busy) and active (busy)
   int i; 
   printf("\n---------------RES STATIONS--------------\n");
   for(i = 0; i < LOAD_RS; i++)
   {
-    printf("Load#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, load_unit.rs[i].busy, 
+    printf("Load#%d %p: next: %p busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, &load_unit.rs[i], load_unit.rs[i].next, load_unit.rs[i].busy, 
 	   load_unit.rs[i].cycles_remaining, op(load_unit.rs[i].iOpcode), (int) load_unit.rs[i].reg_vj, (int) load_unit.rs[i].reg_vk, 
 	   load_unit.rs[i].reg_qj, load_unit.rs[i].reg_qk, load_unit.rs[i].dest, load_unit.rs[i].waiting_for_operands);
   }
@@ -204,8 +204,9 @@ int remove_queue(RES_STATION **queue, RES_STATION *q)
   {          
     while(p) 
     {
-      if(p->id == q->id)
+      if(p == q)
       {
+        //printf("curr %p to be removed %p \n", p, q);
 	//printf("**remove_queue(): found it!\n");
 	break;
       }
@@ -224,7 +225,7 @@ int remove_queue(RES_STATION **queue, RES_STATION *q)
     }
     else // removed at least second item
     {
-     // printf("**remove_queue(): removed it, was not first item\n");
+      //printf("**remove_queue(): removed it, was not first item\n");
       prev->next = p->next;
     }
     return 1;
@@ -300,12 +301,18 @@ void clear_flags()
     load_unit.rs[i].received_val_this_cycle = 0;
     if(load_unit.rs[i].dest != NULL)
       load_unit.rs[i].dest->entered_wr_this_cycle = 0;
-   // printf("**clear_flags(): id=%d busy=%d\n", i, load_unit.rs[i].busy);
+    //printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&clear_flags(): id=%d busy=%d\n", i, load_unit.rs[i].busy);
+    //printf("load_unit.active %p load_unit.free %p\n", load_unit.active, load_unit.free);
+  //  print_rs_status();
     if(load_unit.rs[i].busy == 0) // no longer active
     {
       if(remove_queue(&(load_unit.active), &(load_unit.rs[i])) == 1) // was in active list
       {
+       // printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$clear_flags(): after remove from active and beofre insert into free\n");
+    //printf("load_unit.active %p load_unit.free %p\n", load_unit.active, load_unit.free);
+   // print_rs_status();
 	memset(&(load_unit.rs[i]), 0, sizeof(RES_STATION));
+        load_unit.rs[i].id = i;
 	enqueue(&(load_unit.free), &(load_unit.rs[i]));
 	load_unit.free_stations++;
       }
@@ -322,6 +329,7 @@ void clear_flags()
       if(remove_queue(&(store_unit.active), &(store_unit.rs[i])) == 1) // was in active list
       {
 	memset(&(store_unit.rs[i]), 0, sizeof(RES_STATION));
+        store_unit.rs[i].id = i;
 	enqueue(&(store_unit.free), &(store_unit.rs[i]));
 	store_unit.free_stations++;
       }
@@ -338,6 +346,7 @@ void clear_flags()
       if(remove_queue(&(int_unit.active), &(int_unit.rs[i])) == 1) // was in active list
       {
 	memset(&(int_unit.rs[i]), 0, sizeof(RES_STATION));
+        int_unit.rs[i].id = i;
 	enqueue(&(int_unit.free), &(int_unit.rs[i]));
 	int_unit.free_stations++;
       }
@@ -354,6 +363,7 @@ void clear_flags()
       if(remove_queue(&(fp_add_unit.active), &(fp_add_unit.rs[i])) == 1) // was in active list
       {
 	memset(&(fp_add_unit.rs[i]), 0, sizeof(RES_STATION));
+        fp_add_unit.rs[i].id = i;
 	enqueue(&(fp_add_unit.free), &(fp_add_unit.rs[i]));
 	fp_add_unit.free_stations++;
       }
@@ -370,6 +380,7 @@ void clear_flags()
       if(remove_queue(&(fp_mult_unit.active), &(fp_mult_unit.rs[i])) == 1) // was in active list
       {
 	memset(&(fp_mult_unit.rs[i]), 0, sizeof(RES_STATION));
+        fp_mult_unit.rs[i].id = i;
 	enqueue(&(fp_mult_unit.free), &(fp_mult_unit.rs[i]));
 	fp_mult_unit.free_stations++;
       }
@@ -514,8 +525,13 @@ int assign_int(ROB_ENTRY * robe, int thread)
     }
     // TODO: get mem addr from symbol table for branch
     rs->reg_vk = (int) robe->pInst->rgiOperand[1];
-    if((int) rs->reg_vj != 0) // Branch if vj not equal to zero
-      PC[thread] = (int) rs->reg_vk; // TODO: coordinate this line with the branch vk assignment in assign_int()
+    if((int) rs->reg_vj != 0) // Branch if vj not equal to zero 
+    {
+      if(thread == 0)
+        PC[thread] = (int) rs->reg_vk;
+      if(thread == 1)
+        PC[thread] = (int) rs->reg_vk + 144; // TODO check this!
+    }
     printf("**assign_int(): pc[%d]=%d\n", thread, PC[thread]);
   }
   
@@ -647,7 +663,7 @@ int assign_to_rs(ROB_ENTRY *rob_ent, int thread)
 //***********************write_result()***********************
 void write_result(RES_STATION * rs)
 {
-  printf("**write_result(): %p is done\n", rs->dest);
+  printf("**write_result(): rob:%p is done res:%p\n", rs->dest, rs);
   write_result_counter++;
   RES_STATION * res;
   res = load_unit.active;
@@ -943,11 +959,16 @@ int update_fp_mult()
 	else if(rs->cycles_remaining == FP_DIVISION_CYCLE)// if(rs->cycles_remaining == FP_DIVISION_CYCLE) // need to start a divide
 	{
 	  fp_mult_unit.divide = 1; 
+	  if(fp_mult_unit.started_one_this_cycle == 1)
+	    continue; // cannot start another
+	  fp_mult_unit.started_one_this_cycle = 1;
+	  rs->dest->fState = EXECUTE;
 	}
       }
       else
 	printf("**update_fp_mult(): in divide mode, do not start another fp_mult/div instruction\n");
-      rs->cycles_remaining--;
+      if(rs->dest->fState == EXECUTE)
+        rs->cycles_remaining--;
       if(rs->cycles_remaining == 0) // this instr is done with execution phase
       {
 	printf("**update_fp_mult(): execution complete, enter write result stage\n");
