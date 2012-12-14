@@ -981,7 +981,10 @@ int update_fp_mult()
 	{
 	  fp_mult_unit.divide = 1; 
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-	    continue; // cannot start another
+        {
+          rs = rs->next;
+	  continue; // cannot start another
+        }
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
