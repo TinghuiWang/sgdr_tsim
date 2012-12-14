@@ -331,16 +331,18 @@ issue_instr:
 		
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {
+				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].busy = 1;
 				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
 				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
 			} else {
+				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].busy = 1;
 				rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
 				curROBEntry->pARF = (void*) &rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]];
 			}
 		}
 		
 		if(curInst->iOpcode == OP_BNEZ) {
-			fSpeculate[curThreadId] = 1;
+			//fSpeculate[curThreadId] = 1;
 		} else {
 			PC[curThreadId] += 4;
 		}
@@ -397,7 +399,6 @@ int update_rob(FILE* fp) {
 			if(rob_tab[j].arROB[i].fSb == 1) {
 				// Perform Store
 				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value,fpOutResult);
-				return;
 			}
 		}
 	}
