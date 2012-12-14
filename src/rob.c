@@ -181,7 +181,7 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 	// Mark the entry available for Next Cycle
 	entry->available_next_cycle = 1;
 
-	if(entry->fSb == 1) {
+	if(entry->fSb == 1 || entry->pInst->iOpcode == OP_BNEZ) {
 		goto commit_success;
 	}
 
@@ -282,7 +282,6 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse == UNIT_EOP) {
-			while(1);
 			fEOP[curThreadId] = 1;
 			goto get_ready_for_next_instr;
 		}
@@ -327,10 +326,23 @@ issue_instr:
 		curROBEntry->entered_wr_this_cycle = 0;
 		curROBEntry->available_next_cycle = 0;
 		curROBEntry->pInst = curInst;
-	
+		curROBEntry->pInst->rgiOperand[0] += curThreadId * I_REG_MAX;
+		if(curROBEntry->pInst->iOpcode == OP_L_D || 
+			curROBEntry->pInst->iOpcode == OP_S_D) {
+			curROBEntry->pInst->rgiOperand[2] += curThreadId * I_REG_MAX;
+		} else if(curROBEntry->pInst->iOpcode == OP_SUBI || 
+			curROBEntry->pInst->iOpcode == OP_ADDI || 
+			curROBEntry->pInst->iOpcode == OP_SLTI ) {
+			curROBEntry->pInst->rgiOperand[1] += curThreadId * I_REG_MAX;
+		} else if(curROBEntry->pInst->iOpcode == OP_BNEZ) {
+		} else {
+			curROBEntry->pInst->rgiOperand[1] += curThreadId * I_REG_MAX;
+			curROBEntry->pInst->rgiOperand[2] += curThreadId * I_REG_MAX;
+		} 
+
 		if(curInst->iOpcode == OP_S_D) {
 			curROBEntry->fSb = 1;
-				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
+			curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
 		} else {
 			curROBEntry->fSb = 0;
 		}
@@ -339,19 +351,17 @@ issue_instr:
 		
 		if(curInst->iOpcode != OP_S_D) {
 			if(curInst->iOpcode & 0x80) {
-				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].busy = 1;
-				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
+				rgfReg[curInst->rgiOperand[0]].busy = 1;
+				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
+				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
 			} else {
-				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].busy = 1;
-				rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = (void*) &rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]];
+				rgfReg[curInst->rgiOperand[0]].busy = 1;
+				rgiReg[curInst->rgiOperand[0]].ptr = curROBEntry;
+				curROBEntry->pARF = (void*) &rgiReg[curInst->rgiOperand[0]];
 			}
 		}
 		
-		if(curInst->iOpcode == OP_BNEZ) {
-			//fSpeculate[curThreadId] = 1;
-		} else {
+		if(curInst->iOpcode != OP_BNEZ) {
 			PC[curThreadId] += 4;
 		}
 		i++;
@@ -406,8 +416,10 @@ int update_rob(FILE* fp) {
 		for(i=0; i< NR_ROB_ENT; i++) {
 			if(rob_tab[j].arROB[i].fSb == 1 && rob_tab[j].arROB[i].fState == COMMIT) {
 				// Perform Store
-				printf("Mem Woite: Addr %x, value %d\n", rob_tab[j].arROB[i].pInst->rgiOperand[0], ((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value);
-				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value,fpOutResult);
+				printf("Mem Woite: Addr %d, value %d\n", rob_tab[j].arROB[i].pInst->rgiOperand[0], (int) rob_tab[j].arROB[i].fRegValue);
+				getchar();
+				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],(int) rob_tab[j].arROB[i].fRegValue,fpOutResult);
+				rob_tab[j].arROB[i].available_next_cycle = 1;
 			}
 		}
 	}

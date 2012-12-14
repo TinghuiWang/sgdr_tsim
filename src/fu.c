@@ -533,7 +533,9 @@ int assign_int(ROB_ENTRY * robe, int thread)
       if(thread == 1)
         PC[thread] = (int) rs->reg_vk + 144; // TODO check this!
 	  printf("\e[32m Reg Value %d, Thread %d Goto %d \e[0m\n", rs->reg_vj, thread, PC[thread]);
-    }
+    } else {
+		PC[thread] += 4;
+	}
     printf("**assign_int(): pc[%d]=%d\n", thread, PC[thread]);
   }
   

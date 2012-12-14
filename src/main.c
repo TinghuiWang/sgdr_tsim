@@ -73,6 +73,7 @@ printUsage() {
 void simulate(FILE *fp)
 {
   int i, j;
+  char tmp = 'c';
   int cycles = 1;
   inst_entry stalled_instruction;
   inst_entry instruction;
@@ -82,7 +83,7 @@ void simulate(FILE *fp)
   PC[1] = PC1_INIT_VAL;
 
   //for(i = 0; i < 200; i++) // TODO: needs to be changed to while(!end of program) loop
-  while(fEOP[0] == 0 |  fEOP[1] == 0)
+  while(fEOP[0] == 0 ||  fEOP[1] == 0)
   {
     printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	
@@ -101,12 +102,13 @@ void simulate(FILE *fp)
 			ROB_print(&rob_tab[j]);
 		}
 	    print_rs_status();
-		//getc(stdin);
+		getc(stdin);
 	}
 
 	// Move on to Next Cycle
     cycles++;
 	fflush(stdout);
+	fflush(fp);
   }
   // print stats now
 }
@@ -182,10 +184,10 @@ int main(int argc, char** argv)
 	
 	init_registers(fpInRegFP, fpInRegInt);
 	
-	  for (i = 0; i < I_REG_MAX; i++) {
+	  for (i = 0; i < NR_THREAD * I_REG_MAX; i++) {
 	  	rgiReg[i].index = i;
 	  }
-	  for (i = 0; i < FP_REG_MAX; i++) {
+	  for (i = 0; i < NR_THREAD * FP_REG_MAX; i++) {
 	  	rgfReg[i].index = i;
 	  }
 	
