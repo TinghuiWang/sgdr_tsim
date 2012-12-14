@@ -214,13 +214,15 @@ int ROB_TryCommit(ROB_ENTRY *entry) {
 	if (entry->fState == WRITE_RES) {
 		if(entry->entered_wr_this_cycle == 1) {
 			entry->entered_wr_this_cycle = 0;
-		} else {	// COmmit
+		} else {	// Commit
 			if(nrCommit < NR_INSTR_ISSUE ) {
 				entry->fState = COMMIT;
 				nrCommit += ROB_DoCommit(entry);
+				return 1;
 			}
 		}
 	}
+	return 0;
 }
 
 /*
@@ -404,6 +406,8 @@ void ROB_ClearEntry(ROB_ENTRY* ent) {
 
 int update_rob(FILE* fp) {
 	int i,j;
+	int enable_commit = 1;
+	ROB_ENTRY* ent;
 
 	nrCommit = 0;
 	// Commit results
@@ -414,8 +418,12 @@ int update_rob(FILE* fp) {
 				ROB_MarkFree(&rob_tab[j], &rob_tab[j].arROB[i]);
 			}
 		}
-		for(i = 0; i < NR_ROB_ENT; i++) {
-			ROB_TryCommit(&rob_tab[j].arROB[i]);
+		ent = rob_tab[j].busy;
+		while(ent != NULL) {
+			enable_commit = ROB_TryCommit(ent);
+			if(enable_commit == 0)
+				break;
+			ent = ent->next;
 		}
 		for(i=0; i< NR_ROB_ENT; i++) {
 			if(rob_tab[j].arROB[i].fSb == 1 && rob_tab[j].arROB[i].fState == COMMIT) {
