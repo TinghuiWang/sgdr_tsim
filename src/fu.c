@@ -253,6 +253,7 @@ int init_fu()
   for(i = 0; i < LOAD_RS; i++)
   {
     load_unit.rs[i].id = i;
+    load_unit.rs[i].iOpcode = -1;
     load_unit.rs[i].next = &(load_unit.rs[i+1]);
   }
   load_unit.rs[LOAD_RS-1].next = NULL;
@@ -261,6 +262,7 @@ int init_fu()
   for(i = 0; i < STORE_RS; i++)
   {
     store_unit.rs[i].id = i;
+    store_unit.rs[i].iOpcode = -1;
     store_unit.rs[i].next = &(store_unit.rs[i+1]);
   }
   store_unit.rs[STORE_RS-1].next = NULL;
@@ -269,6 +271,7 @@ int init_fu()
   for(i = 0; i < INTEGER_RS; i++)
   {
     int_unit.rs[i].id = i;
+    int_unit.rs[i].iOpcode = -1;
     int_unit.rs[i].next = &(int_unit.rs[i+1]);
   }
   int_unit.rs[INTEGER_RS-1].next = NULL;
@@ -277,6 +280,7 @@ int init_fu()
   for(i = 0; i < FP_ADD_RS; i++)
   {
     fp_add_unit.rs[i].id = i;
+    fp_add_unit.rs[i].iOpcode = -1;
     fp_add_unit.rs[i].next = &(fp_add_unit.rs[i+1]);
   }
   fp_add_unit.rs[FP_ADD_RS-1].next = NULL;
@@ -285,6 +289,7 @@ int init_fu()
   for(i = 0; i < FP_MULT_RS; i++)
   {
     fp_mult_unit.rs[i].id = i;
+    fp_mult_unit.rs[i].iOpcode = -1;
     fp_mult_unit.rs[i].next = &(fp_mult_unit.rs[i+1]);
   }
   fp_mult_unit.rs[FP_MULT_RS-1].next = NULL;
@@ -311,6 +316,7 @@ void clear_flags()
    // print_rs_status();
 	memset(&(load_unit.rs[i]), 0, sizeof(RES_STATION));
         load_unit.rs[i].id = i;
+        load_unit.rs[i].iOpcode = -1;
 	enqueue(&(load_unit.free), &(load_unit.rs[i]));
 	load_unit.free_stations++;
       }
@@ -328,6 +334,7 @@ void clear_flags()
       {
 	memset(&(store_unit.rs[i]), 0, sizeof(RES_STATION));
         store_unit.rs[i].id = i;
+        store_unit.rs[i].iOpcode = -1;
 	enqueue(&(store_unit.free), &(store_unit.rs[i]));
 	store_unit.free_stations++;
       }
@@ -345,6 +352,7 @@ void clear_flags()
       {
 	memset(&(int_unit.rs[i]), 0, sizeof(RES_STATION));
         int_unit.rs[i].id = i;
+        int_unit.rs[i].iOpcode = -1;
 	enqueue(&(int_unit.free), &(int_unit.rs[i]));
 	int_unit.free_stations++;
       }
@@ -356,15 +364,16 @@ void clear_flags()
     fp_add_unit.rs[i].received_val_this_cycle = 0;
     if(fp_add_unit.rs[i].dest != NULL)
       fp_add_unit.rs[i].dest->entered_wr_this_cycle = 0;
-    printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&clear_flags(): id=%d busy=%d\n", i, fp_add_unit.rs[i].busy);
+ /*   printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&clear_flags(): id=%d busy=%d\n", i, fp_add_unit.rs[i].busy);
     printf("fp_add_unit.active %p fp_add_unit.free %p\n", fp_add_unit.active, fp_add_unit.free);
-    print_rs_status();
+    print_rs_status();*/
     if(fp_add_unit.rs[i].busy == 0) // no longer active
     {
       if(remove_queue(&(fp_add_unit.active), &(fp_add_unit.rs[i])) == 1) // was in active list
       {
 	memset(&(fp_add_unit.rs[i]), 0, sizeof(RES_STATION));
         fp_add_unit.rs[i].id = i;
+        fp_add_unit.rs[i].iOpcode = -1;
 	enqueue(&(fp_add_unit.free), &(fp_add_unit.rs[i]));
 	fp_add_unit.free_stations++;
       }
@@ -382,6 +391,7 @@ void clear_flags()
       {
 	memset(&(fp_mult_unit.rs[i]), 0, sizeof(RES_STATION));
         fp_mult_unit.rs[i].id = i;
+        fp_mult_unit.rs[i].iOpcode = -1;
 	enqueue(&(fp_mult_unit.free), &(fp_mult_unit.rs[i]));
 	fp_mult_unit.free_stations++;
       }
@@ -393,6 +403,49 @@ void clear_flags()
   fp_add_unit.started_one_this_cycle = 0;
   fp_mult_unit.started_one_this_cycle = 0;
 }
+
+//***********************unfinished_rs()***********************
+int unfinished_rs()
+{
+  int i;
+  for(i = 0; i < LOAD_RS; i++)
+  {
+    if(load_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < STORE_RS; i++)
+  {
+    if(store_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < INTEGER_RS; i++)
+  {
+    if(int_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < FP_ADD_RS; i++)
+  {
+    if(fp_add_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < FP_MULT_RS; i++)
+  {
+    if(fp_mult_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  return 0;
+}
+
 
 //***********************assign_load()***********************
 int assign_load(ROB_ENTRY * robe)
@@ -983,7 +1036,10 @@ int update_fp_mult()
 	{
 	  fp_mult_unit.divide = 1; 
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-	    continue; // cannot start another
+        {
+          rs = rs->next;
+	  continue; // cannot start another
+        }
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
