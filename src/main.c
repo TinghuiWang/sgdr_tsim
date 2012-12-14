@@ -83,7 +83,7 @@ void simulate(FILE *fp)
   PC[1] = PC1_INIT_VAL;
 
   //for(i = 0; i < 200; i++) // TODO: needs to be changed to while(!end of program) loop
-  while(fEOP[0] == 0 ||  fEOP[1] == 0)
+  while(fEOP[0] == 0 ||  fEOP[1] == 0 || unfinished_rs())
   {
     printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	
@@ -95,7 +95,7 @@ void simulate(FILE *fp)
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
-	if(cycles) {
+	if(cycles > 30) {
 	    print_reg_status();
 		for(j = 0; j < NR_THREAD; j++) {
 			printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);

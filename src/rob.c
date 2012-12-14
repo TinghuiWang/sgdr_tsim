@@ -131,6 +131,7 @@ ROB_ENTRY *ROB_getEntry(ROB_TABLE *rob) {
 }
 
 int ROB_printEntry(ROB_ENTRY *ent) {
+	printf("%p ", ent);
 	printf("%2d ", ent->iIndex);
 	printf("%s ", getfState(ent->fState));
 	if(ent->fState == FREE) {
