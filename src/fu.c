@@ -506,7 +506,7 @@ int assign_store(ROB_ENTRY * robe)
   rs->cycles_remaining = STORE_CYCLE;
   rs->iOpcode = OP_S_D;
   rs->waiting_for_operands = 0;
-  
+  /*
   if(rgfReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
   {
 	    if((rgfReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
@@ -524,7 +524,7 @@ int assign_store(ROB_ENTRY * robe)
   {
     rs->reg_vk = rgfReg[robe->pInst->rgiOperand[0]].value;
     rs->reg_qk = NULL;
-  }
+  }*/
   
   if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
@@ -542,6 +542,7 @@ int assign_store(ROB_ENTRY * robe)
   }
   else
   {
+    //printf("store: %d %d\n", rgiReg[robe->pInst->rgiOperand[2]].value, robe->pInst->rgiOperand[1]);
     rs->reg_vj = rgiReg[robe->pInst->rgiOperand[2]].value + robe->pInst->rgiOperand[1]; // add offset
     rs->reg_qj = NULL;
   }

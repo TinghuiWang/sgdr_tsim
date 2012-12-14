@@ -219,6 +219,11 @@ int ROB_TryCommit(ROB_ENTRY *entry) {
 				entry->fState = COMMIT;
 				nrCommit += ROB_DoCommit(entry);
 			}
+			else
+			{
+				printf("nrCommit %d\n", nrCommit);
+				getc(stdin);
+			}
 		}
 	}
 }
@@ -313,6 +318,7 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 			#ifdef DEBUG_ROB_VERBOSE
 			printf("No Reservation Station Found\n");
 			#endif
+                        //getc(stdin);
 			free(curInst);
 			ROB_MarkFree(&rob_tab[curThreadId], curROBEntry);
 			fThreadBlock[curThreadId] = 1;

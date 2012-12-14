@@ -99,13 +99,13 @@ void simulate(FILE *fp)
     clear_flags(); 
 	// Print Debug Message
 	if(cycles) {
-	    print_reg_status();
+	   // print_reg_status();
 		for(j = 0; j < NR_THREAD; j++) {
 			printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
 			ROB_print(&rob_tab[j]);
 		}
-	    print_rs_status();
-	//	getc(stdin);
+	   // print_rs_status();
+		//getc(stdin);
 	}
 
 	// Move on to Next Cycle
