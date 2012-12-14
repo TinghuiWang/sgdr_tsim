@@ -79,7 +79,7 @@ void print_mem_status()
 
 //***********************print_rs_status()***********************
 void print_rs_status()
-{
+{/*
   RES_STATION * rs;
   printf("\n---------------RES STATIONS--------------\n");
   rs = load_unit.active;
@@ -125,7 +125,7 @@ void print_rs_status()
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;
-  }/*
+  }*/
   // this code is to print ALL reservation stations, both inactive (not busy) and active (busy)
   int i; 
   printf("\n---------------RES STATIONS--------------\n");
@@ -149,7 +149,7 @@ void print_rs_status()
   }
   for(i = 0; i < FP_ADD_RS; i++)
   {
-    printf("FP Add/Sub#%d: busy=%d cycles_remaining=%d op=%s vj=%f vk=%f qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, fp_add_unit.rs[i].busy, 
+    printf("FP Add/Sub#%d %p: next: %p busy=%d cycles_remaining=%d op=%s vj=%f vk=%f qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, &fp_add_unit.rs[i], fp_add_unit.rs[i].next, fp_add_unit.rs[i].busy, 
 	   fp_add_unit.rs[i].cycles_remaining, op(fp_add_unit.rs[i].iOpcode), fp_add_unit.rs[i].reg_vj, fp_add_unit.rs[i].reg_vk, 
 	   fp_add_unit.rs[i].reg_qj, fp_add_unit.rs[i].reg_qk, fp_add_unit.rs[i].dest, fp_add_unit.rs[i].waiting_for_operands);
   }
@@ -158,7 +158,7 @@ void print_rs_status()
     printf("FP Mult/Div#%d: busy=%d cycles_remaining=%d op=%s vj=%f vk=%f qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, fp_mult_unit.rs[i].busy, 
 	   fp_mult_unit.rs[i].cycles_remaining, op(fp_mult_unit.rs[i].iOpcode), fp_mult_unit.rs[i].reg_vj, fp_mult_unit.rs[i].reg_vk, 
 	   fp_mult_unit.rs[i].reg_qj, fp_mult_unit.rs[i].reg_qk, fp_mult_unit.rs[i].dest, fp_mult_unit.rs[i].waiting_for_operands);
-  }*/
+  }
 }
 
 //*********************enqueue()*********************
@@ -301,9 +301,7 @@ void clear_flags()
     load_unit.rs[i].received_val_this_cycle = 0;
     if(load_unit.rs[i].dest != NULL)
       load_unit.rs[i].dest->entered_wr_this_cycle = 0;
-    //printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&clear_flags(): id=%d busy=%d\n", i, load_unit.rs[i].busy);
-    //printf("load_unit.active %p load_unit.free %p\n", load_unit.active, load_unit.free);
-  //  print_rs_status();
+
     if(load_unit.rs[i].busy == 0) // no longer active
     {
       if(remove_queue(&(load_unit.active), &(load_unit.rs[i])) == 1) // was in active list
@@ -358,6 +356,9 @@ void clear_flags()
     fp_add_unit.rs[i].received_val_this_cycle = 0;
     if(fp_add_unit.rs[i].dest != NULL)
       fp_add_unit.rs[i].dest->entered_wr_this_cycle = 0;
+    printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&clear_flags(): id=%d busy=%d\n", i, fp_add_unit.rs[i].busy);
+    printf("fp_add_unit.active %p fp_add_unit.free %p\n", fp_add_unit.active, fp_add_unit.free);
+    print_rs_status();
     if(fp_add_unit.rs[i].busy == 0) // no longer active
     {
       if(remove_queue(&(fp_add_unit.active), &(fp_add_unit.rs[i])) == 1) // was in active list
@@ -787,7 +788,10 @@ int update_load()
       { //just entering execution phase
        // printf("**update_load(): one is ready to go!\n");
         if(load_unit.started_one_this_cycle == 1) // cannot start another
-	  continue;
+        {
+          rs = rs->next;
+	  continue; // cannot start another
+        }
 	load_unit.started_one_this_cycle = 1;
 	rs->dest->fState = EXECUTE;
 	//printf("**update_load(): starting one!\n");
@@ -824,7 +828,10 @@ int update_store()
       if(rs->cycles_remaining == STORE_CYCLE)
       { //just entering execution phase
         if(store_unit.started_one_this_cycle == 1)
+        {
+          rs = rs->next;
 	  continue; // cannot start another
+        }
 	store_unit.started_one_this_cycle = 1;
 	rs->dest->fState = EXECUTE;
       }
@@ -860,7 +867,10 @@ int update_int()
       if(rs->cycles_remaining == INTEGER_CYCLE)
       { //just entering execution phase
         if(int_unit.started_one_this_cycle == 1)
+        {
+          rs = rs->next;
 	  continue; // cannot start another
+        }
 	int_unit.started_one_this_cycle = 1;
 	rs->dest->fState = EXECUTE;
       }
@@ -907,13 +917,19 @@ int update_fp_add()
   rs = fp_add_unit.active;
   while(rs)
   {
+   // printf("\n\n**&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&update_fp_add(): id=%d busy=%d rs=%p\n", rs->id, rs->busy, rs);
+   // printf("fp_add_unit.active %p fp_add_unit.free %p\n", fp_add_unit.active, fp_add_unit.free);
+   // print_rs_status();
     if(rs->busy == 1 && rs->issued_this_cycle == 0 
       && rs->waiting_for_operands == 0 && rs->received_val_this_cycle == 0)
     {
       if(rs->cycles_remaining == FP_ADDSUB_CYCLE)
       { //just entering execution phase
         if(fp_add_unit.started_one_this_cycle == 1)
+        {
+          rs = rs->next;
 	  continue; // cannot start another
+        }
 	fp_add_unit.started_one_this_cycle = 1;
 	rs->dest->fState = EXECUTE;
       }
@@ -934,6 +950,7 @@ int update_fp_add()
 	write_result(rs);
       }
     }
+    //printf("\n\n^^^^^^^^^^^^^^^^^^^^^^rs %p, rs->next %p\n", rs, rs->next);
     rs = rs->next;
   }
 }
@@ -953,7 +970,10 @@ int update_fp_mult()
 	if(rs->cycles_remaining == FP_MULTIPLY_CYCLE)
 	{ //just entering execution phase
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-	    continue; // cannot start another
+        {
+          rs = rs->next;
+	  continue; // cannot start another
+        }
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
