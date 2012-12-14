@@ -466,9 +466,16 @@ int assign_load(ROB_ENTRY * robe)
   
   if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+		    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
+		    rs->waiting_for_operands = 1;
+		    robe->fState = WAITING;
+            }
   }
   else
   {
@@ -502,9 +509,16 @@ int assign_store(ROB_ENTRY * robe)
   
   if(rgfReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[0]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[0]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[0]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
   }
   else
   {
@@ -514,10 +528,17 @@ int assign_store(ROB_ENTRY * robe)
   
   if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_vj = robe->pInst->rgiOperand[1]; // add offset
-    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[2]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+		    rs->reg_vj = robe->pInst->rgiOperand[1]; // add offset
+		    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
+		    rs->waiting_for_operands = 1;
+		    robe->fState = WAITING;
+            }
   }
   else
   {
@@ -551,9 +572,16 @@ int assign_int(ROB_ENTRY * robe, int thread)
   {
     if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[1]].ptr;
-      rs->waiting_for_operands = 1;
-      robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[1]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[1]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
     }
     else
     {
@@ -568,9 +596,16 @@ int assign_int(ROB_ENTRY * robe, int thread)
   {
     if(rgiReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[0]].ptr;
-      rs->waiting_for_operands = 1;
-      robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[0]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[0]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
     }
     else
     {
