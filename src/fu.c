@@ -741,7 +741,7 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
 	      rs->waiting_for_operands = 1;
 	      robe->fState = WAITING;
-	    }
+	  }
   }
   else
   {
@@ -1089,21 +1089,21 @@ int update_fp_mult()
 	if(rs->cycles_remaining == FP_MULTIPLY_CYCLE)
 	{ //just entering execution phase
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-        {
-          rs = rs->next;
-	  continue; // cannot start another
-        }
+          {
+            rs = rs->next;
+	    continue; // cannot start another
+          }
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
 	else if(rs->cycles_remaining == FP_DIVISION_CYCLE)// if(rs->cycles_remaining == FP_DIVISION_CYCLE) // need to start a divide
 	{
-	  fp_mult_unit.divide = 1; 
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-        {
-          rs = rs->next;
-	  continue; // cannot start another
-        }
+          {
+            rs = rs->next;
+	    continue; // cannot start another
+          }
+	  fp_mult_unit.divide = 1; 
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
@@ -1125,6 +1125,7 @@ int update_fp_mult()
 	{
 	  rs->dest->fRegValue = (float) (rs->reg_vj) / rs->reg_vk; // check this
 	  fp_mult_unit.divide = 0; // yay! done with non pipelined divide
+	  printf("**update_fp_mult(): setting divide flag to 0\n");
 	}
 	printf("**update_fp_mult(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;
