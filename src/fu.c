@@ -404,6 +404,49 @@ void clear_flags()
   fp_mult_unit.started_one_this_cycle = 0;
 }
 
+//***********************unfinished_rs()***********************
+int unfinished_rs()
+{
+  int i;
+  for(i = 0; i < LOAD_RS; i++)
+  {
+    if(load_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < STORE_RS; i++)
+  {
+    if(store_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < INTEGER_RS; i++)
+  {
+    if(int_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < FP_ADD_RS; i++)
+  {
+    if(fp_add_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  for(i = 0; i < FP_MULT_RS; i++)
+  {
+    if(fp_mult_unit.rs[i].iOpcode != -1) // no longer active
+    {
+	return 1;
+    }
+  }
+  return 0;
+}
+
+
 //***********************assign_load()***********************
 int assign_load(ROB_ENTRY * robe)
 {
