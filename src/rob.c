@@ -181,6 +181,10 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 	// Mark the entry available for Next Cycle
 	entry->available_next_cycle = 1;
 
+	if(entry->fSb == 1) {
+		goto commit_success;
+	}
+
 	if(entry->pInst->iOpcode & 0x80) {
 		fp_reg_entry* prgfReg = entry->pARF;
 		if((unsigned long) prgfReg->ptr == (unsigned long) entry) {
@@ -271,6 +275,10 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 	while (i < InstrNum) {
 		curInst = (inst_entry*) malloc (sizeof(struct inst_entry));
 		*curInst = inst_fetch(PC[curThreadId], fp);
+
+		if(curInst->iOpcode == -1) {
+			while(1);
+		}
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse == UNIT_EOP) {
@@ -396,8 +404,9 @@ int update_rob(FILE* fp) {
 			ROB_TryCommit(&rob_tab[j].arROB[i]);
 		}
 		for(i=0; i< NR_ROB_ENT; i++) {
-			if(rob_tab[j].arROB[i].fSb == 1) {
+			if(rob_tab[j].arROB[i].fSb == 1 && rob_tab[j].arROB[i].fState == COMMIT) {
 				// Perform Store
+				printf("Mem Woite: Addr %x, value %d\n", rob_tab[j].arROB[i].pInst->rgiOperand[0], ((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value);
 				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],((fp_reg_entry*) (rob_tab[j].arROB[i].pARF))->value,fpOutResult);
 			}
 		}
