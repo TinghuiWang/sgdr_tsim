@@ -95,14 +95,14 @@ void simulate(FILE *fp)
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
-	if(cycles > 30) {
+	//if(cycles > 30) {
 	    print_reg_status();
 		for(j = 0; j < NR_THREAD; j++) {
 			printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
 			ROB_print(&rob_tab[j]);
-		}
+	//	}
 	    print_rs_status();
-		getc(stdin);
+		//getc(stdin);
 	}
 
 	// Move on to Next Cycle

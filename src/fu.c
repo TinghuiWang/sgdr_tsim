@@ -616,9 +616,16 @@ int assign_fp_add(ROB_ENTRY * robe)
   
   if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgfReg[robe->pInst->rgiOperand[1]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+                 rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
+                 rs->waiting_for_operands = 1;
+                 robe->fState = WAITING;
+            }
   }
   else
   {
@@ -627,9 +634,16 @@ int assign_fp_add(ROB_ENTRY * robe)
   }
   if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	  if((rgfReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	  {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	  }
+	  else
+	  {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+	    }
   }
   else
   {
@@ -665,9 +679,16 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 
   if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgfReg[robe->pInst->rgiOperand[1]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+                 rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
+                 rs->waiting_for_operands = 1;
+                 robe->fState = WAITING;
+            }
   }
   else
   {
@@ -676,9 +697,16 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
   }
   if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	  if((rgfReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	  {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	  }
+	  else
+	  {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+	    }
   }
   else
   {
@@ -808,6 +836,7 @@ void write_result(RES_STATION * rs)
   res = fp_mult_unit.active;
   while(res)
   {
+  printf("**write_result(): res->reg_qj:%p rs->dest:%p\n", res->reg_qj, rs->dest);
     if(res->reg_qj == rs->dest)
     {
      res->received_val_this_cycle = 1;
