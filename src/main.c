@@ -73,6 +73,7 @@ printUsage() {
 void simulate(FILE *fp)
 {
   int i, j;
+  int instrIssued = 0;
   char tmp = 'c';
   int cycles = 1;
   inst_entry stalled_instruction;
@@ -91,11 +92,11 @@ void simulate(FILE *fp)
     update_rs(); 
 	// Update ReOrder Buffer
     update_rob(fp);
-	ROB_Issue(NR_INSTR_ISSUE, fp);
+	instrIssued += ROB_Issue(NR_INSTR_ISSUE, fp);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
-	if(cycles > 30) {
+	if(cycles) {
 	    print_reg_status();
 		for(j = 0; j < NR_THREAD; j++) {
 			printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
@@ -111,6 +112,7 @@ void simulate(FILE *fp)
 	fflush(fp);
   }
   // print stats now
+  printf("CPI: %f\n", instrIssued/cycles);
 }
 
 int main(int argc, char** argv) 

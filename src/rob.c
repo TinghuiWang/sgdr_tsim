@@ -356,7 +356,7 @@ issue_instr:
 				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
 				curROBEntry->pARF = (void*) &rgfReg[curInst->rgiOperand[0]];
 			} else {
-				rgfReg[curInst->rgiOperand[0]].busy = 1;
+				rgiReg[curInst->rgiOperand[0]].busy = 1;
 				rgiReg[curInst->rgiOperand[0]].ptr = curROBEntry;
 				curROBEntry->pARF = (void*) &rgiReg[curInst->rgiOperand[0]];
 			}
