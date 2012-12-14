@@ -79,13 +79,13 @@ void print_mem_status()
 
 //***********************print_rs_status()***********************
 void print_rs_status()
-{/*
+{
   RES_STATION * rs;
   printf("\n---------------RES STATIONS--------------\n");
   rs = load_unit.active;
   while(rs)
   {
-    printf("(%p)LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%x qk=%x dest=%x waiting_for_operands=%d\n", rs, rs->id, rs->busy, 
+    printf("LOAD#%d: busy=%d cycles_remaining=%d op=%s vj=%d vk=%d qj=%x qk=%x dest=%x waiting_for_operands=%d\n", rs->id, rs->busy, 
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;
@@ -125,7 +125,7 @@ void print_rs_status()
 	   rs->cycles_remaining, op(rs->iOpcode), (int) rs->reg_vj, (int) rs->reg_vk, 
 	   rs->reg_qj, rs->reg_qk, rs->dest, rs->waiting_for_operands);
     rs = rs->next;
-  }*/
+  }/*
   // this code is to print ALL reservation stations, both inactive (not busy) and active (busy)
   int i; 
   printf("\n---------------RES STATIONS--------------\n");
@@ -158,7 +158,7 @@ void print_rs_status()
     printf("FP Mult/Div#%d: busy=%d cycles_remaining=%d op=%s vj=%f vk=%f qj=%p qk=%p dest=%p waiting_for_operands=%d\n", i, fp_mult_unit.rs[i].busy, 
 	   fp_mult_unit.rs[i].cycles_remaining, op(fp_mult_unit.rs[i].iOpcode), fp_mult_unit.rs[i].reg_vj, fp_mult_unit.rs[i].reg_vk, 
 	   fp_mult_unit.rs[i].reg_qj, fp_mult_unit.rs[i].reg_qk, fp_mult_unit.rs[i].dest, fp_mult_unit.rs[i].waiting_for_operands);
-  }
+  }*/
 }
 
 //*********************enqueue()*********************
