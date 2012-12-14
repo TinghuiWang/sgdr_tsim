@@ -101,7 +101,7 @@ void simulate(FILE *fp)
 			ROB_print(&rob_tab[j]);
 		}
 	    print_rs_status();
-		//getc(stdin);
+		getc(stdin);
 	}
 
 	// Move on to Next Cycle
