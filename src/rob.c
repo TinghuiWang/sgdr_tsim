@@ -148,6 +148,7 @@ int ROB_printEntry(ROB_ENTRY *ent) {
 		if(ent->pARF != NULL) 
 			printf("Dest: R%d ", ((int_reg_entry *) (ent->pARF))->index);
 	}
+	printf("  op: %s ", op(ent->pInst->iOpcode));
 	printf("\n");
 	return 0;
 }
@@ -199,8 +200,8 @@ int ROB_TryCommit(ROB_ENTRY *entry) {
 		if(entry->entered_wr_this_cycle == 1) {
 			entry->entered_wr_this_cycle = 0;
 		} else {	// COmmit
-			entry->fState = COMMIT;
 			if(nrCommit < NR_INSTR_ISSUE ) {
+				entry->fState = COMMIT;
 				ROB_DoCommit(entry);
 				nrCommit++;
 			}
@@ -282,6 +283,7 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 			#endif
 			free(curInst);
 			fThreadBlock[curThreadId] = 1;
+			ROB_MarkFree(&rob_tab[curThreadId], curROBEntry);
 			goto get_ready_for_next_instr;
 		}
 
@@ -291,6 +293,7 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 			printf("No Reservation Station Found\n");
 			#endif
 			free(curInst);
+			ROB_MarkFree(&rob_tab[curThreadId], curROBEntry);
 			fThreadBlock[curThreadId] = 1;
 			goto get_ready_for_next_instr;
 		}
@@ -351,12 +354,32 @@ get_ready_for_next_instr:
 	}
 }
 
+void ROB_ClearEntry(ROB_ENTRY* ent) {
+	ent->fState = 0;
+	ent->fSpec = 0;
+	ent->fSb = 0;
+	ent->fDesValid = 0;
+	ent->iRegValue = 0;
+	ent->fRegValue = 0;
+	ent->pARF = NULL;
+	ent->fFloatInt = 0;
+	ent->entered_wr_this_cycle = 0;
+	ent->available_next_cycle = 0;
+	ent->pInst = NULL;
+}
+
 int update_rob(FILE* fp) {
 	int i,j;
 
 	nrCommit = 0;
 	// Commit results
 	for(j = 0; j < NR_THREAD; j++) {
+		for(i = 0; i < NR_ROB_ENT; i++) {
+			if(rob_tab[j].arROB[i].available_next_cycle == 1) {
+				ROB_ClearEntry(&rob_tab[j].arROB[i]);
+				ROB_MarkFree(&rob_tab[j], &rob_tab[j].arROB[i]);
+			}
+		}
 		for(i = 0; i < NR_ROB_ENT; i++) {
 			ROB_TryCommit(&rob_tab[j].arROB[i]);
 		}

@@ -81,7 +81,7 @@ void simulate(FILE *fp)
   PC[0] = PC0_INIT_VAL;
   PC[1] = PC1_INIT_VAL;
 
-  for(i = 0; i < 6; i++) // TODO: needs to be changed to while(!end of program) loop
+  for(i = 0; i < 20; i++) // TODO: needs to be changed to while(!end of program) loop
   {
     printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	

@@ -32,29 +32,29 @@ char * op(int op)
 {
     switch(op) {
    	case OP_L_D: 
-		return "LOAD.D";
+		return " LOAD.D";
    	case OP_MUL_D: 
-    	return "MULT.D";
+    	return " MULT.D";
    	case OP_ADD_D: 
-    	return "ADD.D";
+    	return "  ADD.D";
    	case OP_S_D: 
     	return "STORE.D";
    	case OP_SUB_D: 
-    	return "SUB.D";
+    	return "  SUB.D";
    	case OP_ADDI: 
-    	return "ADDI";
+    	return "   ADDI";
    	case OP_SUBI: 
-    	return "SUBI";
+    	return "   SUBI";
    	case OP_SLTI: 
-    	return "SLTI";
+    	return "   SLTI";
    	case OP_BNEZ: 
-    	return "BNEZ";
+    	return "   BNEZ";
    	case OP_NOP: 
-    	return "NOP";
+    	return "    NOP";
    	case OP_DIV_D: 
-    	return "DIV.D";
+    	return "  DIV.D";
    	default: 
-		return "";
+		return "       ";
     }
 }
 
@@ -204,7 +204,7 @@ int remove_queue(RES_STATION **queue, RES_STATION *q)
   {          
     while(p) 
     {
-      if(p->id == q->id)
+      if(p == q)
       {
 	//printf("**remove_queue(): found it!\n");
 	break;
