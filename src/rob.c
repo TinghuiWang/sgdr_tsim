@@ -177,22 +177,32 @@ int ROB_print(ROB_TABLE *rob) {
 }
 
 int ROB_DoCommit(ROB_ENTRY *entry) {
-	if(entry->pInst->iOpcode & 0x80) {
-		fp_reg_entry* prgfReg = entry->pARF;
-		prgfReg->value = entry->fRegValue;
-		prgfReg->busy = 0;
-		prgfReg->ptr = NULL; 
-	} else {
-		int_reg_entry* prgiReg = entry->pARF;
-		prgiReg->value = entry->iRegValue;
-		prgiReg->busy = 0;
-		prgiReg->ptr = NULL; 
-	}
-
 	entry->fState = COMMIT;
 	// Mark the entry available for Next Cycle
 	entry->available_next_cycle = 1;
-	return;
+
+	if(entry->pInst->iOpcode & 0x80) {
+		fp_reg_entry* prgfReg = entry->pARF;
+		if((unsigned long) prgfReg->ptr == (unsigned long) entry) {
+			prgfReg->value = entry->fRegValue;
+			prgfReg->busy = 0;
+			prgfReg->ptr = NULL;
+			goto commit_success; 
+		}
+	} else {
+		int_reg_entry* prgiReg = entry->pARF;
+		if((unsigned long) prgiReg->ptr == (unsigned long) entry) {
+			prgiReg->value = entry->iRegValue;
+			prgiReg->busy = 0;
+			prgiReg->ptr = NULL; 
+			goto commit_success;
+		}
+	}
+
+commit_fail:
+	return 0;
+commit_success:
+	return 1;
 }
 
 int ROB_TryCommit(ROB_ENTRY *entry) {
@@ -202,8 +212,7 @@ int ROB_TryCommit(ROB_ENTRY *entry) {
 		} else {	// COmmit
 			if(nrCommit < NR_INSTR_ISSUE ) {
 				entry->fState = COMMIT;
-				ROB_DoCommit(entry);
-				nrCommit++;
+				nrCommit += ROB_DoCommit(entry);
 			}
 		}
 	}
@@ -265,6 +274,7 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse == UNIT_EOP) {
+			while(1);
 			fEOP[curThreadId] = 1;
 			goto get_ready_for_next_instr;
 		}
@@ -324,8 +334,8 @@ issue_instr:
 				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
 				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
 			} else {
-				rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
-				curROBEntry->pARF = (void*) &rgfReg[curThreadId * FP_REG_MAX + curInst->rgiOperand[0]];
+				rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]].ptr = curROBEntry;
+				curROBEntry->pARF = (void*) &rgiReg[curThreadId * I_REG_MAX + curInst->rgiOperand[0]];
 			}
 		}
 		

@@ -81,7 +81,8 @@ void simulate(FILE *fp)
   PC[0] = PC0_INIT_VAL;
   PC[1] = PC1_INIT_VAL;
 
-  for(i = 0; i < 75; i++) // TODO: needs to be changed to while(!end of program) loop
+  //for(i = 0; i < 200; i++) // TODO: needs to be changed to while(!end of program) loop
+  while(fEOP[0] == 0 |  fEOP[1] == 0)
   {
     printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	
@@ -90,21 +91,21 @@ void simulate(FILE *fp)
 	// Update ReOrder Buffer
     update_rob(fp);
 	ROB_Issue(NR_INSTR_ISSUE, fp);
-	print_rs_status();
-	fflush(stdout);
 	// Clear Temporary Flgas
     clear_flags(); 
 	// Print Debug Message
-    print_reg_status();
-	for(j = 0; j < NR_THREAD; j++) {
-		printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
-		ROB_print(&rob_tab[j]);
+	if(cycles) {
+	    print_reg_status();
+		for(j = 0; j < NR_THREAD; j++) {
+			printf("\nROB of THREAD: %d >>>>>>>>>>>>>>>>>>>>>>\n", j);
+			ROB_print(&rob_tab[j]);
+		}
+	    print_rs_status();
+		getc(stdin);
 	}
-    print_rs_status();
 
 	// Move on to Next Cycle
     cycles++;
-	getc(stdin);
 	fflush(stdout);
   }
   // print stats now
