@@ -149,7 +149,7 @@ int ROB_printEntry(ROB_ENTRY *ent) {
 		if(ent->pARF != NULL) 
 			printf("Dest: R%d ", ((int_reg_entry *) (ent->pARF))->index);
 	}
-	printf("  op: %s ", op(ent->pInst->iOpcode));
+	printf(" inst: %3d %s ", ent->pInst->ploc, op(ent->pInst->iOpcode));
 	printf("\n");
 	return 0;
 }
@@ -276,13 +276,16 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 	while (i < InstrNum) {
 		curInst = (inst_entry*) malloc (sizeof(struct inst_entry));
 		*curInst = inst_fetch(PC[curThreadId], fp);
-
+                printf("trying to issue %s %d, %d, %d\n", op(curInst->iOpcode), curInst->rgiOperand[0], curInst->rgiOperand[1], curInst->rgiOperand[2]);
 		if(curInst->iOpcode == -1) {
-			while(1);
+			while(1)
+                          printf("iOpcode == -1\n");
 		}
 
 		fUnitToUse = utGetUnitTypeForInstr(curInst);
 		if(fUnitToUse == UNIT_EOP) {
+                        printf("Encountered EOP for thread %d\n", curThreadId);
+                        //getc(stdin);
 			fEOP[curThreadId] = 1;
 			goto get_ready_for_next_instr;
 		}
@@ -350,7 +353,7 @@ issue_instr:
 		
 		assign_to_rs(curROBEntry, curThreadId);
 		
-		if(curInst->iOpcode != OP_S_D) {
+		if(curInst->iOpcode != OP_S_D && curInst->iOpcode != OP_BNEZ) { // added bnez -gs
 			if(curInst->iOpcode & 0x80) {
 				rgfReg[curInst->rgiOperand[0]].busy = 1;
 				rgfReg[curInst->rgiOperand[0]].ptr = curROBEntry;
@@ -417,8 +420,8 @@ int update_rob(FILE* fp) {
 		for(i=0; i< NR_ROB_ENT; i++) {
 			if(rob_tab[j].arROB[i].fSb == 1 && rob_tab[j].arROB[i].fState == COMMIT) {
 				// Perform Store
-				printf("Mem Woite: Addr %d, value %d\n", rob_tab[j].arROB[i].pInst->rgiOperand[0], (int) rob_tab[j].arROB[i].fRegValue);
-				getchar();
+				printf("Mem Write: Addr %d, value %d\n", rob_tab[j].arROB[i].pInst->rgiOperand[0], (int) rob_tab[j].arROB[i].fRegValue);
+				//getchar();
 				mem_store(rob_tab[j].arROB[i].pInst->rgiOperand[0],(int) rob_tab[j].arROB[i].fRegValue,fpOutResult);
 				rob_tab[j].arROB[i].available_next_cycle = 1;
 			}

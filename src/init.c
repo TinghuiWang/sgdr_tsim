@@ -102,6 +102,7 @@ inst_entry inst_fetch(int iAddr, FILE *fpAsm)
 	int iSymAddr = 0;
 	inst_entry temp;
 
+	temp.ploc = iAddr;
 	fseek(fpAsm,rgliMemLocation[(iAddr/4)], SEEK_SET);
 	fgets(szInstruction, 50, fpAsm);
 	pszName = strtok(szInstruction, " \n\t,)");

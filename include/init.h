@@ -30,6 +30,7 @@ typedef struct inst_entry
 {
 	int iOpcode;
 	int rgiOperand[3];
+	int ploc;
 } inst_entry;
 
 extern long int *rgliMemLocation;

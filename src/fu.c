@@ -63,10 +63,10 @@ void print_reg_status()
 {
  int i;
  printf("\n---------------INTEGER--------------\n");
- for(i = 0; i < I_REG_MAX; i++)
+ for(i = 0; i < NR_THREAD * I_REG_MAX; i++)
    printf("R%d: busy=%d value=%d ptr=%p\n", i, rgiReg[i].busy, rgiReg[i].value, rgiReg[i].ptr);
  printf("\n---------------FP--------------\n");
- for(i = 0; i < FP_REG_MAX; i++)
+ for(i = 0; i < NR_THREAD * FP_REG_MAX; i++)
    printf("F%d: busy=%d value=%f ptr=%p\n", i, rgfReg[i].busy, rgfReg[i].value, rgfReg[i].ptr);
 }
 
@@ -466,9 +466,16 @@ int assign_load(ROB_ENTRY * robe)
   
   if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+		    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
+		    rs->waiting_for_operands = 1;
+		    robe->fState = WAITING;
+            }
   }
   else
   {
@@ -502,9 +509,16 @@ int assign_store(ROB_ENTRY * robe)
   
   if(rgfReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[0]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[0]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[0]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
   }
   else
   {
@@ -514,10 +528,17 @@ int assign_store(ROB_ENTRY * robe)
   
   if(rgiReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_vj = robe->pInst->rgiOperand[1]; // add offset
-    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[2]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+		    rs->reg_vj = robe->pInst->rgiOperand[1]; // add offset
+		    rs->reg_qj = rgiReg[robe->pInst->rgiOperand[2]].ptr;
+		    rs->waiting_for_operands = 1;
+		    robe->fState = WAITING;
+            }
   }
   else
   {
@@ -551,9 +572,16 @@ int assign_int(ROB_ENTRY * robe, int thread)
   {
     if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[1]].ptr;
-      rs->waiting_for_operands = 1;
-      robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[1]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[1]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
     }
     else
     {
@@ -568,9 +596,16 @@ int assign_int(ROB_ENTRY * robe, int thread)
   {
     if(rgiReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
     {
-      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[0]].ptr;
-      rs->waiting_for_operands = 1;
-      robe->fState = WAITING;
+	    if((rgiReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgiReg[robe->pInst->rgiOperand[0]].ptr)->iRegValue;
+	    }
+	    else
+	    {
+	      rs->reg_qj = rgiReg[robe->pInst->rgiOperand[0]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+            }
     }
     else
     {
@@ -616,9 +651,16 @@ int assign_fp_add(ROB_ENTRY * robe)
   
   if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgfReg[robe->pInst->rgiOperand[1]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+                 rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
+                 rs->waiting_for_operands = 1;
+                 robe->fState = WAITING;
+            }
   }
   else
   {
@@ -627,9 +669,16 @@ int assign_fp_add(ROB_ENTRY * robe)
   }
   if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	  if((rgfReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	  {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	  }
+	  else
+	  {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+	    }
   }
   else
   {
@@ -665,9 +714,16 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 
   if(rgfReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
   {
-    rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	    if((rgfReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
+	    {
+		rs->reg_vj = (rgfReg[robe->pInst->rgiOperand[1]].ptr)->fRegValue;
+	    }
+	    else
+	    {
+                 rs->reg_qj = rgfReg[robe->pInst->rgiOperand[1]].ptr;
+                 rs->waiting_for_operands = 1;
+                 robe->fState = WAITING;
+            }
   }
   else
   {
@@ -676,9 +732,16 @@ int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
   }
   if(rgfReg[robe->pInst->rgiOperand[2]].busy == 1) // get ptr
   {
-    rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
-    rs->waiting_for_operands = 1;
-    robe->fState = WAITING;
+	  if((rgfReg[robe->pInst->rgiOperand[2]].ptr)->fState == WRITE_RES) // get ptr
+	  {
+		rs->reg_vk = (rgfReg[robe->pInst->rgiOperand[2]].ptr)->fRegValue;
+	  }
+	  else
+	  {
+	      rs->reg_qk = rgfReg[robe->pInst->rgiOperand[2]].ptr;
+	      rs->waiting_for_operands = 1;
+	      robe->fState = WAITING;
+	  }
   }
   else
   {
@@ -808,6 +871,7 @@ void write_result(RES_STATION * rs)
   res = fp_mult_unit.active;
   while(res)
   {
+  printf("**write_result(): res->reg_qj:%p rs->dest:%p\n", res->reg_qj, rs->dest);
     if(res->reg_qj == rs->dest)
     {
      res->received_val_this_cycle = 1;
@@ -1025,21 +1089,21 @@ int update_fp_mult()
 	if(rs->cycles_remaining == FP_MULTIPLY_CYCLE)
 	{ //just entering execution phase
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-        {
-          rs = rs->next;
-	  continue; // cannot start another
-        }
+          {
+            rs = rs->next;
+	    continue; // cannot start another
+          }
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
 	else if(rs->cycles_remaining == FP_DIVISION_CYCLE)// if(rs->cycles_remaining == FP_DIVISION_CYCLE) // need to start a divide
 	{
-	  fp_mult_unit.divide = 1; 
 	  if(fp_mult_unit.started_one_this_cycle == 1)
-        {
-          rs = rs->next;
-	  continue; // cannot start another
-        }
+          {
+            rs = rs->next;
+	    continue; // cannot start another
+          }
+	  fp_mult_unit.divide = 1; 
 	  fp_mult_unit.started_one_this_cycle = 1;
 	  rs->dest->fState = EXECUTE;
 	}
@@ -1061,6 +1125,7 @@ int update_fp_mult()
 	{
 	  rs->dest->fRegValue = (float) (rs->reg_vj) / rs->reg_vk; // check this
 	  fp_mult_unit.divide = 0; // yay! done with non pipelined divide
+	  printf("**update_fp_mult(): setting divide flag to 0\n");
 	}
 	printf("**update_fp_mult(): value=%f\n", rs->dest->fRegValue);
 	rs->dest->entered_wr_this_cycle = 1;

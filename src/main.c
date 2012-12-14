@@ -32,6 +32,9 @@
 	strcmp(argv[i], flag)
 
 int write_result_counter = 0;
+int instrIssued = 0;
+int instrCommited = 0;
+
 
 /* *********************************** */
 /*           Global Variables          */
@@ -73,7 +76,6 @@ printUsage() {
 void simulate(FILE *fp)
 {
   int i, j;
-  int instrIssued = 0;
   char tmp = 'c';
   int cycles = 1;
   inst_entry stalled_instruction;
@@ -84,7 +86,7 @@ void simulate(FILE *fp)
   PC[1] = PC1_INIT_VAL;
 
   //for(i = 0; i < 200; i++) // TODO: needs to be changed to while(!end of program) loop
-  while(fEOP[0] == 0 ||  fEOP[1] == 0 || unfinished_rs())
+  while(fEOP[0] == 0 ||  fEOP[1] == 0 || rob_tab[0].busy != NULL || rob_tab[1].busy != NULL)
   {
     printf("\n\n**************************** CYCLE=%d | PC={%d,%d} ****************************\n\n", cycles, PC[0], PC[1]);
 	
@@ -103,7 +105,7 @@ void simulate(FILE *fp)
 			ROB_print(&rob_tab[j]);
 		}
 	    print_rs_status();
-		getc(stdin);
+	//	getc(stdin);
 	}
 
 	// Move on to Next Cycle
@@ -112,7 +114,9 @@ void simulate(FILE *fp)
 	fflush(fp);
   }
   // print stats now
-  printf("CPI: %f\n", instrIssued/cycles);
+  printf("CPI: %f\n", (float)instrIssued/cycles);
+  printf("Execution complete!\n");
+  printf("Average number of instruction in write back per cycle: %f\n", (float) write_result_counter / cycles);
 }
 
 int main(int argc, char** argv) 
