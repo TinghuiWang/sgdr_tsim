@@ -34,7 +34,6 @@ typedef struct res_station
 	char waiting_for_operands;
 	char issued_this_cycle;
 	char received_val_this_cycle;
-	int busy_counter;
 	ROB_ENTRY *reg_qj;
 	ROB_ENTRY *reg_qk;
 	ROB_ENTRY *dest;

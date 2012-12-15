@@ -75,8 +75,9 @@ void ReorderBufferViewer::updateViewer2()
 {
     for (int i = 0; i < NR_THREAD; ++i) {
         for (int j = 0; j < NR_ROB_ENT; ++j) {
-            item(NR_ROB_ENT * i + j, 0)->setText(QString("%1").arg(rob_tab[i].arROB[j].pInst->iOpcode, 8, 16, QChar('0')).toUpper());
-            item(NR_ROB_ENT * i + j, 2)->setText(QString("%1").arg(rob_tab[i].arROB[j].iRegValue, 8, 16, QChar('0')).toUpper());
+//            item(NR_ROB_ENT * i + j, 0)->setText(QString("%1").arg(rob_tab[i].arROB[j].pInst->iOpcode));
+            item(NR_ROB_ENT * i + j, 0)->setText(QString("%1").arg(123));
+//            item(NR_ROB_ENT * i + j, 2)->setText(QString("%1").arg(rob_tab[i].arROB[j].iRegValue));
         }
     }
 }

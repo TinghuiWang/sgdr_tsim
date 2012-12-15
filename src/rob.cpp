@@ -25,6 +25,7 @@
 #include "fu.h" 
 #include "init.h" 
 #include "glo.h"
+#include "instr.h"
 
 #define DEBUG_ROB_VERBOSE
 
@@ -187,7 +188,7 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 	}
 
 	if(entry->pInst->iOpcode & 0x80) {
-		fp_reg_entry* prgfReg = entry->pARF;
+        fp_reg_entry* prgfReg = (fp_reg_entry *)entry->pARF;
 		if((unsigned long) prgfReg->ptr == (unsigned long) entry) {
 			prgfReg->value = entry->fRegValue;
 			prgfReg->busy = 0;
@@ -195,7 +196,7 @@ int ROB_DoCommit(ROB_ENTRY *entry) {
 			goto commit_success; 
 		}
 	} else {
-		int_reg_entry* prgiReg = entry->pARF;
+        int_reg_entry* prgiReg = (int_reg_entry *)entry->pARF;
 		if((unsigned long) prgiReg->ptr == (unsigned long) entry) {
 			prgiReg->value = entry->iRegValue;
 			prgiReg->busy = 0;

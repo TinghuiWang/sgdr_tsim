@@ -5,10 +5,11 @@ SOURCES += \
     reservationstationsviewer.cpp \
     registerfileviewer.cpp \
     memoryviewer.cpp \
-    rob.c \
-    instr.c \
-    init.c \
-    fu.c
+    glo.cpp \
+    rob.cpp \
+    init.cpp \
+    fu.cpp \
+    instr.cpp
 
 HEADERS += \
     mainwindow.h \

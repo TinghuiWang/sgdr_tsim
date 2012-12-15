@@ -152,7 +152,7 @@ void MainWindow::cycleProcess()
     reservationStationViewer->updateViewer2();
 
     // Move on to Next Cycle
-    cycles++;
+    ++cycles;
     //getc(stdin);
     if (fEOP[0] == 1 && fEOP[1] == 1)
         emit endProgram();
@@ -177,7 +177,7 @@ void MainWindow::openAsmFile()
 
 void MainWindow::openFloatRegFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open ASM Code File"), "", tr("ASM Code (*.asm);;All files (*)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Floating Point Register File"), "", tr("Text Files (*.txt);;All files (*)"));
 
     if (fileName.isEmpty())
         return;
@@ -192,7 +192,7 @@ void MainWindow::openFloatRegFile()
 
 void MainWindow::openIntRegFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open ASM Code File"), "", tr("ASM Code (*.asm);;All files (*)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Integer Register File"), "", tr("Text Files (*.txt);;All files (*)"));
 
     if (fileName.isEmpty())
         return;

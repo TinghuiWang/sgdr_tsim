@@ -19,8 +19,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define TRUE			1
-#define FALSE			0
+//#define TRUE			1
+//#define FALSE			0
 
 #define PC0_INIT_VAL 0
 #define PC1_INIT_VAL 144

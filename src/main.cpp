@@ -9,30 +9,22 @@
  *      - Steve Wang                                                                                                           *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      Graphic User Interface / Execution Loop                                                                                *
- *  File:                   reorderbufferviewer.h                                                                              *
- *  Description:            Reorder Buffer monitor class description                                                           *
+ *  File:                   main.cpp                                                                                           *
+ *  Description:            Main file for Qt GUI / execution loop processing wrapper                                           *
  *  Last modification date: 2012/11/23                                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#ifndef REORDERBUFFERVIEWER_H
-#define REORDERBUFFERVIEWER_H
-
-#include <QTableWidget>
+#include <QApplication>
 #include "typedef.h"
-#include "config.h"
+#include "mainwindow.h"
 
-class ReorderBufferViewer : public QTableWidget
+#include "glo.h"
+
+int main(int argc, char *argv[])
 {
-    Q_OBJECT
-private:
-    enum { Registers = NR_THREAD * NR_ROB_ENT, Fields = 4 };
+    QApplication a(argc, argv);
+    MainWindow *w = new MainWindow;
+    w->show();
 
-public:
-    explicit ReorderBufferViewer(QWidget *parent = 0);  // Class constructor
+    return a.exec();
+}
 
-signals:
-    
-public slots:
-    void updateViewer2();
-};
-
-#endif // REORDERBUFFERVIEWER_H

@@ -21,7 +21,7 @@
 ReservationStationsViewer::ReservationStationsViewer(QWidget *parent) :
     QTableWidget(parent)
 {
-    setRowCount(FPUnits + FXUnits + LSUnits + BRUnits);     // Number of rows given by processing units
+    setRowCount(LOAD_RS + STORE_RS + INTEGER_RS + FP_ADD_RS + FP_MULT_RS);     // Number of rows given by processing units
     setColumnCount(Fields);                                 // 7 column fields
 
     for (int i = 0; i < columnCount(); ++i) {   // Column name assignment loop
@@ -55,29 +55,35 @@ ReservationStationsViewer::ReservationStationsViewer(QWidget *parent) :
         horizontalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
     }
 
-    for (int i = 0; i < FPUnits; ++i) {     // Floating point unit name assignment loop
+    for (int i = 0; i < LOAD_RS; ++i) {     // Load unit name assignment loop
         QTableWidgetItem *item = new QTableWidgetItem;
-        item->setText(QString("FP%1").arg(i));
+        item->setText(QString("Load %1").arg(i));
         setVerticalHeaderItem(i, item);
         verticalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
     }
-    for (int i = 0; i < FXUnits; ++i) {     // Fixed point unit name assignment loop
+    for (int i = 0; i < STORE_RS; ++i) {     // Store unit name assignment loop
         QTableWidgetItem *item = new QTableWidgetItem;
-        item->setText(QString("FX%1").arg(i));
-        setVerticalHeaderItem(i + FPUnits, item);
-        verticalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
+        item->setText(QString("Store %1").arg(i));
+        setVerticalHeaderItem(i + LOAD_RS, item);
+        verticalHeaderItem(i + LOAD_RS)->setTextAlignment(Qt::AlignCenter);
     }
-    for (int i = 0; i < LSUnits; ++i) {     // Load/store unit name assignment loop
+    for (int i = 0; i < INTEGER_RS; ++i) {     // Integer unit name assignment loop
         QTableWidgetItem *item = new QTableWidgetItem;
-        item->setText(QString("LS%1").arg(i));
-        setVerticalHeaderItem(i + FPUnits + FXUnits, item);
-        verticalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
+        item->setText(QString("Int %1").arg(i));
+        setVerticalHeaderItem(i + LOAD_RS + STORE_RS, item);
+        verticalHeaderItem(i + LOAD_RS + STORE_RS)->setTextAlignment(Qt::AlignCenter);
     }
-    for (int i = 0; i < BRUnits; ++i) {     // Branch target unit name assignment loop
+    for (int i = 0; i < FP_ADD_RS; ++i) {     // FP Add unit name assignment loop
         QTableWidgetItem *item = new QTableWidgetItem;
-        item->setText(QString("BR%1").arg(i));
-        setVerticalHeaderItem(i + FPUnits + FXUnits + LSUnits, item);
-        verticalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
+        item->setText(QString("FP Add %1").arg(i));
+        setVerticalHeaderItem(i + LOAD_RS + STORE_RS + INTEGER_RS, item);
+        verticalHeaderItem(i + LOAD_RS + STORE_RS + INTEGER_RS)->setTextAlignment(Qt::AlignCenter);
+    }
+    for (int i = 0; i < FP_MULT_RS; ++i) {     // FP Mult unit name assignment loop
+        QTableWidgetItem *item = new QTableWidgetItem;
+        item->setText(QString("FP Mult %1").arg(i));
+        setVerticalHeaderItem(i + LOAD_RS + STORE_RS + INTEGER_RS + FP_ADD_RS, item);
+        verticalHeaderItem(i + LOAD_RS + STORE_RS + INTEGER_RS + FP_ADD_RS)->setTextAlignment(Qt::AlignCenter);
     }
     for (int i = 0; i < rowCount(); ++i) {  // Data cell initialization double loop
         for (int j = 0; j < columnCount(); ++j) {
@@ -101,9 +107,9 @@ void ReservationStationsViewer::updateViewer2()
         item(baseIndex + i, 1)->setText(displayOpCode(load_unit.rs[i].iOpcode));
         item(baseIndex + i, 2)->setText(QString("%1").arg(load_unit.rs[i].reg_vj));
         item(baseIndex + i, 3)->setText(QString("%1").arg(load_unit.rs[i].reg_vk));
-        item(baseIndex + i, 4)->setText(QString("%1").arg(load_unit.rs[i].reg_qj->fRegValue));
-        item(baseIndex + i, 5)->setText(QString("%1").arg(load_unit.rs[i].reg_qk->fRegValue));
-        item(baseIndex + i, 6)->setText(QString("%1").arg(load_unit.rs[i].dest->fRegValue));
+//        item(baseIndex + i, 4)->setText(QString("%1").arg(load_unit.rs[i].reg_qj->fRegValue));
+//        item(baseIndex + i, 5)->setText(QString("%1").arg(load_unit.rs[i].reg_qk->fRegValue));
+//        item(baseIndex + i, 6)->setText(QString("%1").arg(load_unit.rs[i].dest->fRegValue));
     }
 
     baseIndex = baseIndex + LOAD_RS;
@@ -113,9 +119,9 @@ void ReservationStationsViewer::updateViewer2()
         item(baseIndex + i, 1)->setText(displayOpCode(store_unit.rs[i].iOpcode));
         item(baseIndex + i, 2)->setText(QString("%1").arg(store_unit.rs[i].reg_vj));
         item(baseIndex + i, 3)->setText(QString("%1").arg(store_unit.rs[i].reg_vk));
-        item(baseIndex + i, 4)->setText(QString("%1").arg(store_unit.rs[i].reg_qj->fRegValue));
-        item(baseIndex + i, 5)->setText(QString("%1").arg(store_unit.rs[i].reg_qk->fRegValue));
-        item(baseIndex + i, 6)->setText(QString("%1").arg(store_unit.rs[i].dest->fRegValue));
+//        item(baseIndex + i, 4)->setText(QString("%1").arg(store_unit.rs[i].reg_qj->fRegValue));
+//        item(baseIndex + i, 5)->setText(QString("%1").arg(store_unit.rs[i].reg_qk->fRegValue));
+//        item(baseIndex + i, 6)->setText(QString("%1").arg(store_unit.rs[i].dest->fRegValue));
     }
 
     baseIndex = baseIndex + STORE_RS;
@@ -125,9 +131,9 @@ void ReservationStationsViewer::updateViewer2()
         item(baseIndex + i, 1)->setText(displayOpCode(int_unit.rs[i].iOpcode));
         item(baseIndex + i, 2)->setText(QString("%1").arg(int_unit.rs[i].reg_vj));
         item(baseIndex + i, 3)->setText(QString("%1").arg(int_unit.rs[i].reg_vk));
-        item(baseIndex + i, 4)->setText(QString("%1").arg(int_unit.rs[i].reg_qj->fRegValue));
-        item(baseIndex + i, 5)->setText(QString("%1").arg(int_unit.rs[i].reg_qk->fRegValue));
-        item(baseIndex + i, 6)->setText(QString("%1").arg(int_unit.rs[i].dest->fRegValue));
+//        item(baseIndex + i, 4)->setText(QString("%1").arg(int_unit.rs[i].reg_qj->fRegValue));
+//        item(baseIndex + i, 5)->setText(QString("%1").arg(int_unit.rs[i].reg_qk->fRegValue));
+//        item(baseIndex + i, 6)->setText(QString("%1").arg(int_unit.rs[i].dest->fRegValue));
     }
 
     baseIndex = baseIndex + INTEGER_RS;
@@ -137,9 +143,9 @@ void ReservationStationsViewer::updateViewer2()
         item(baseIndex + i, 1)->setText(displayOpCode(fp_add_unit.rs[i].iOpcode));
         item(baseIndex + i, 2)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_vj));
         item(baseIndex + i, 3)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_vk));
-        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qj->fRegValue));
-        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qk->fRegValue));
-        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_add_unit.rs[i].dest->fRegValue));
+//        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qj->fRegValue));
+//        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qk->fRegValue));
+//        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_add_unit.rs[i].dest->fRegValue));
     }
 
     baseIndex = baseIndex + FP_ADD_RS;
@@ -149,9 +155,9 @@ void ReservationStationsViewer::updateViewer2()
         item(baseIndex + i, 1)->setText(displayOpCode(fp_mult_unit.rs[i].iOpcode));
         item(baseIndex + i, 2)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_vj));
         item(baseIndex + i, 3)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_vk));
-        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qj->fRegValue));
-        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qk->fRegValue));
-        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_mult_unit.rs[i].dest->fRegValue));
+//        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qj->fRegValue));
+//        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qk->fRegValue));
+//        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_mult_unit.rs[i].dest->fRegValue));
     }
 }
 
