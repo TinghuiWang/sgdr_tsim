@@ -32,6 +32,13 @@
 	strcmp(argv[i], flag)
 
 int write_result_counter = 0;
+int num_load = 0;
+int num_store = 0;
+int num_int = 0;
+int num_branch = 0;
+int num_fp_add = 0;
+int num_fp_mult = 0;
+int num_structural_hazards = 0;
 int instrIssued = 0;
 int instrCommited = 0;
 
@@ -114,8 +121,24 @@ void simulate(FILE *fp)
 	fflush(fp);
   }
   // print stats now
-  printf("CPI: %f\n", (float)instrIssued/cycles);
   printf("Execution complete!\n");
+
+  printf("Loads: %.2f%%\n", 100.0 * (float) num_load/instrIssued);
+  printf("Stores: %.2f%%\n", 100.0 * (float) num_store/instrIssued);
+  printf("Ints: %.2f%%\n", 100.0 * (float) num_int/instrIssued);
+  printf("Branches: %.2f%%\n", 100.0 * (float) num_branch/instrIssued);
+  printf("FP add/sub: %.2f%%\n", 100.0 * (float) num_fp_add/instrIssued);
+  printf("FP mult/div: %.2f%%\n", 100.0 * (float) num_fp_mult/instrIssued);
+  printf("Total Instructions: %d\n", instrIssued);
+  printf("Structural Hazards: %d\n", num_structural_hazards);
+
+  printf("Load unit percentage of reservation stations busy per cycle: %.2f%%\n", 100.0 *  ((load_unit.rs[0].busy_counter + load_unit.rs[1].busy_counter + load_unit.rs[2].busy_counter + load_unit.rs[3].busy_counter) / 4.0) / cycles);
+  printf("Store unit percentage of reservation stations busy per cycle: %.2f%%\n", 100.0 *  ((store_unit.rs[0].busy_counter + store_unit.rs[1].busy_counter + store_unit.rs[2].busy_counter + store_unit.rs[3].busy_counter) / 4.0) / cycles);
+  printf("Integer unit percentage of reservation stations busy per cycle: %.2f%%\n", 100.0 *  ((int_unit.rs[0].busy_counter + int_unit.rs[1].busy_counter + int_unit.rs[2].busy_counter + int_unit.rs[3].busy_counter) / 4.0) / cycles);
+  printf("FP add/sub unit percentage of reservation stations busy per cycle: %.2f%%\n", 100.0 * ((fp_add_unit.rs[0].busy_counter + fp_add_unit.rs[1].busy_counter + fp_add_unit.rs[2].busy_counter + fp_add_unit.rs[3].busy_counter) / 4.0) / cycles);
+  printf("FP mult/div unit percentage of reservation stations busy per cycle: %.2f%%\n", 100.0 * ((fp_mult_unit.rs[0].busy_counter + fp_mult_unit.rs[1].busy_counter + fp_mult_unit.rs[2].busy_counter) / 3.0) / cycles);
+
+  printf("CPI: %f\n", (float) cycles/instrIssued);
   printf("Average number of instruction in write back per cycle: %f\n", (float) write_result_counter / cycles);
 }
 

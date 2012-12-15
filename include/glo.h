@@ -50,5 +50,13 @@ extern int branch;
 extern void* pExUnitHeader;
 extern void* pROB;
 extern int write_result_counter;
+extern int num_load;
+extern int num_store;
+extern int num_int;
+extern int num_branch;
+extern int num_fp_add;
+extern int num_fp_mult;
+extern int num_structural_hazards;
+
 
 #endif
