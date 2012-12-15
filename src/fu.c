@@ -296,6 +296,23 @@ int init_fu()
   fp_mult_unit.free = &(fp_mult_unit.rs[0]);
 }
 
+//***********************clear_rs()***********************
+void clear_rs(RES_STATION * rs)
+{
+	rs->busy = 0;
+	rs->cycles_remaining = 0;
+        rs->iOpcode = -1;
+	rs->reg_vj = 0;
+	rs->reg_vk = 0;
+	rs->waiting_for_operands = 0;
+	rs->issued_this_cycle = 0;
+	rs->received_val_this_cycle = 0;
+	rs->reg_qj = NULL;
+	rs->reg_qk = NULL;
+	rs->dest = NULL;
+	rs->next = NULL;
+}
+
 //***********************clear_flags()***********************
 void clear_flags()
 {
@@ -314,13 +331,14 @@ void clear_flags()
        // printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$clear_flags(): after remove from active and beofre insert into free\n");
     //printf("load_unit.active %p load_unit.free %p\n", load_unit.active, load_unit.free);
    // print_rs_status();
-	memset(&(load_unit.rs[i]), 0, sizeof(RES_STATION));
-        load_unit.rs[i].id = i;
-        load_unit.rs[i].iOpcode = -1;
+	//memset(&(load_unit.rs[i]), 0, sizeof(RES_STATION));
+        clear_rs(&(load_unit.rs[i]));
 	enqueue(&(load_unit.free), &(load_unit.rs[i]));
 	load_unit.free_stations++;
       }
     }
+    else
+	load_unit.rs[i].busy_counter++;
   }
   for(i = 0; i < STORE_RS; i++)
   {
@@ -332,13 +350,14 @@ void clear_flags()
     {
       if(remove_queue(&(store_unit.active), &(store_unit.rs[i])) == 1) // was in active list
       {
-	memset(&(store_unit.rs[i]), 0, sizeof(RES_STATION));
-        store_unit.rs[i].id = i;
-        store_unit.rs[i].iOpcode = -1;
+	//memset(&(store_unit.rs[i]), 0, sizeof(RES_STATION));
+        clear_rs(&(store_unit.rs[i]));
 	enqueue(&(store_unit.free), &(store_unit.rs[i]));
 	store_unit.free_stations++;
       }
     }
+    else
+	store_unit.rs[i].busy_counter++;
   }
   for(i = 0; i < INTEGER_RS; i++)
   {
@@ -350,13 +369,14 @@ void clear_flags()
     {
       if(remove_queue(&(int_unit.active), &(int_unit.rs[i])) == 1) // was in active list
       {
-	memset(&(int_unit.rs[i]), 0, sizeof(RES_STATION));
-        int_unit.rs[i].id = i;
-        int_unit.rs[i].iOpcode = -1;
+	//memset(&(int_unit.rs[i]), 0, sizeof(RES_STATION));
+        clear_rs(&(int_unit.rs[i]));
 	enqueue(&(int_unit.free), &(int_unit.rs[i]));
 	int_unit.free_stations++;
       }
     }
+    else
+	int_unit.rs[i].busy_counter++;
   }
   for(i = 0; i < FP_ADD_RS; i++)
   {
@@ -371,13 +391,14 @@ void clear_flags()
     {
       if(remove_queue(&(fp_add_unit.active), &(fp_add_unit.rs[i])) == 1) // was in active list
       {
-	memset(&(fp_add_unit.rs[i]), 0, sizeof(RES_STATION));
-        fp_add_unit.rs[i].id = i;
-        fp_add_unit.rs[i].iOpcode = -1;
+	//memset(&(fp_add_unit.rs[i]), 0, sizeof(RES_STATION));
+        clear_rs(&(fp_add_unit.rs[i]));
 	enqueue(&(fp_add_unit.free), &(fp_add_unit.rs[i]));
 	fp_add_unit.free_stations++;
       }
     }
+    else
+	fp_add_unit.rs[i].busy_counter++;
   }
   for(i = 0; i < FP_MULT_RS; i++)
   {
@@ -389,13 +410,14 @@ void clear_flags()
     {
       if(remove_queue(&(fp_mult_unit.active), &(fp_mult_unit.rs[i])) == 1) // was in active list
       {
-	memset(&(fp_mult_unit.rs[i]), 0, sizeof(RES_STATION));
-        fp_mult_unit.rs[i].id = i;
-        fp_mult_unit.rs[i].iOpcode = -1;
+	//memset(&(fp_mult_unit.rs[i]), 0, sizeof(RES_STATION));
+        clear_rs(&(fp_mult_unit.rs[i]));
 	enqueue(&(fp_mult_unit.free), &(fp_mult_unit.rs[i]));
 	fp_mult_unit.free_stations++;
       }
     }
+    else
+	fp_mult_unit.rs[i].busy_counter++;
   }
   load_unit.started_one_this_cycle = 0;
   store_unit.started_one_this_cycle = 0;
@@ -450,6 +472,7 @@ int unfinished_rs()
 //***********************assign_load()***********************
 int assign_load(ROB_ENTRY * robe)
 {
+  num_load++;
   RES_STATION * rs;
   
   // need to find free stations	
@@ -492,6 +515,7 @@ int assign_load(ROB_ENTRY * robe)
 //***********************assign_store()***********************
 int assign_store(ROB_ENTRY * robe)
 {
+  num_store++;
   RES_STATION *rs;
   
   // need to find free stations	
@@ -570,6 +594,7 @@ int assign_int(ROB_ENTRY * robe, int thread)
   
   if(robe->pInst->iOpcode == OP_ADDI || robe->pInst->iOpcode == OP_SUBI || robe->pInst->iOpcode == OP_SLTI)
   {
+    num_int++;
     if(rgiReg[robe->pInst->rgiOperand[1]].busy == 1) // get ptr
     {
 	    if((rgiReg[robe->pInst->rgiOperand[1]].ptr)->fState == WRITE_RES) // get ptr
@@ -594,6 +619,7 @@ int assign_int(ROB_ENTRY * robe, int thread)
   }
   else // branch OP_BNEZ
   {
+    num_branch++;
     if(rgiReg[robe->pInst->rgiOperand[0]].busy == 1) // get ptr
     {
 	    if((rgiReg[robe->pInst->rgiOperand[0]].ptr)->fState == WRITE_RES) // get ptr
@@ -634,6 +660,7 @@ int assign_int(ROB_ENTRY * robe, int thread)
 //***********************assign_fp_add()***********************
 int assign_fp_add(ROB_ENTRY * robe)
 {
+  num_fp_add++;
   RES_STATION * rs;
   
   // need to find free stations	
@@ -693,6 +720,7 @@ int assign_fp_add(ROB_ENTRY * robe)
 //***********************assign_fp_mult()***********************
 int assign_fp_mult(ROB_ENTRY *robe) // need special case for divide
 {
+  num_fp_mult++;
   RES_STATION * rs;
 
   // need to find free stations	

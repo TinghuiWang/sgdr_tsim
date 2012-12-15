@@ -293,6 +293,7 @@ int ROB_Issue(int InstrNum, FILE *fp) {
 		}
 		if(fUnitToUse & fUnitUsed) {
 			printf("Structural Hazard Occur\nInstruction Issued: %d\n", i);
+			num_structural_hazards++;
 			free(curInst);
 			fThreadBlock[curThreadId] = 1;
 			goto get_ready_for_next_instr;
