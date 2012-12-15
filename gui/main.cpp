@@ -17,6 +17,8 @@
 #include "typedef.h"
 #include "mainwindow.h"
 
+#include "glo.h"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

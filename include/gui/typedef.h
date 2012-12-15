@@ -57,4 +57,13 @@ typedef struct {
     char *dest;
 } ReservationStationsData;
 
+/*
+typedef struct inst_entry
+{
+    int iOpcode;
+    int rgiOperand[3];
+    int ploc;
+} inst_entry;
+*/
+
 #endif // TYPEDEF_H

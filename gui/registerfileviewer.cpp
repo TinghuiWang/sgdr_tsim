@@ -15,6 +15,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "registerfileviewer.h"
 
+#include "glo.h"
+#include "rob.h"
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      RegisterFileViewer Class Constructor                                                                                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -54,14 +57,10 @@ RegisterFileViewer::RegisterFileViewer(QWidget *parent) :
  *      Viewer Update Method                                                                                                   *
  *  Displays stored value fields in hexadecimal format - 8 digits                                                              *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void RegisterFileViewer::updateViewer(RegisterFileData *registerFileData)
+void RegisterFileViewer::updateViewer2()
 {
-    RegisterFileData *registerFileDataIndex = registerFileData; // Register array pointer declaration
-    for (int i = 0; i < RegisterCount; ++i) {   // Update iteration loop (8-digit hexadecimal format, fixed to 2 processors)
-        item(i, 0)->setText(QString("%1").arg(registerFileDataIndex->dataFloatProc1, 8, 16, QChar('0')).toUpper()); // Float
-        item(i, 1)->setText(QString("%1").arg(registerFileDataIndex->dataFixProc1, 8, 16, QChar('0')).toUpper());   // Integer
-        item(i, 2)->setText(QString("%1").arg(registerFileDataIndex->dataFloatProc2, 8, 16, QChar('0')).toUpper()); // Float
-        item(i, 3)->setText(QString("%1").arg(registerFileDataIndex->dataFixProc2, 8, 16, QChar('0')).toUpper());   // Integer
-        ++registerFileDataIndex;
-    }
+    for (int i = 0; i < I_REG_MAX; ++i)
+        item(i, 0)->setText(QString("%1").arg(rgiReg[i].value, 8, 16, QChar('0')).toUpper()); // Int
+    for (int i = 0; i < FP_REG_MAX; ++i)
+        item(i, 1)->setText(QString("%1").arg(rgfReg[i].value)); // Float
 }

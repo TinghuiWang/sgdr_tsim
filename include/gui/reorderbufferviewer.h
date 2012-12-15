@@ -31,7 +31,7 @@ public:
 signals:
     
 public slots:
-    void updateViewer(ReorderBufferData *reorderBufferData);    // Viewer update method
+    void updateViewer2();
 };
 
 #endif // REORDERBUFFERVIEWER_H

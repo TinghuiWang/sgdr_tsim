@@ -31,7 +31,7 @@ public:
 signals:
     
 public slots:
-    void updateViewer(RegisterFileData *registerFileData);  // Viewer update method
+    void updateViewer2();
     
 };
 

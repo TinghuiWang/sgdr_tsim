@@ -93,36 +93,85 @@ ReservationStationsViewer::ReservationStationsViewer(QWidget *parent) :
  *      Viewer Update Method                                                                                                   *
  *  Displays all Reservation Stations fields                                                                                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void ReservationStationsViewer::updateViewer(ReservationStationsData *reservationStationsData)
+void ReservationStationsViewer::updateViewer2()
 {
-    ReservationStationsData *reservationStationsDataIndex = reservationStationsData;    // Data structure array index
-    for (int i = 0; i < rowCount(); ++i) {          // Update iteration loop
-        if (reservationStationsDataIndex->busy)
-            item(i, 0)->setText(QString("Y"));
-        else
-            item(i, 0)->setText(QString("N"));
-        switch (reservationStationsDataIndex->op) {     // Employing instrType for limited opcode name selection
-        case ADD:
-            item(i, 1)->setText(QString("ADD"));
-            break;
-        case SUB:
-            item(i, 1)->setText(QString("SUB"));
-            break;
-        case MUL:
-            item(i, 1)->setText(QString("MUL"));
-            break;
-        case DIV:
-            item(i, 1)->setText(QString("DIV"));
-            break;
-        default:
-            break;
-        }
-        item(i, 2)->setText(QString("%1").arg(reservationStationsDataIndex->vj, 8, 16, QChar('0')).toUpper());  // Hex 8-digit
-        item(i, 3)->setText(QString("%1").arg(reservationStationsDataIndex->vk, 8, 16, QChar('0')).toUpper());  // Hex 8-digit
-        item(i, 4)->setText(QString("%1").arg(reservationStationsDataIndex->qj));                               // String
-        item(i, 5)->setText(QString("%1").arg(reservationStationsDataIndex->qk));                               // String
-        item(i, 6)->setText(QString("%1").arg(reservationStationsDataIndex->dest));                             // String
+    int baseIndex = 0;
+    for (int i = baseIndex; i < baseIndex + LOAD_RS; ++i) {
+        item(baseIndex + i, 0)->setText(QString("%1").arg(QChar(load_unit.rs[i].busy)));
+        item(baseIndex + i, 1)->setText(displayOpCode(load_unit.rs[i].iOpcode));
+        item(baseIndex + i, 2)->setText(QString("%1").arg(load_unit.rs[i].reg_vj));
+        item(baseIndex + i, 3)->setText(QString("%1").arg(load_unit.rs[i].reg_vk));
+        item(baseIndex + i, 4)->setText(QString("%1").arg(load_unit.rs[i].reg_qj->fRegValue));
+        item(baseIndex + i, 5)->setText(QString("%1").arg(load_unit.rs[i].reg_qk->fRegValue));
+        item(baseIndex + i, 6)->setText(QString("%1").arg(load_unit.rs[i].dest->fRegValue));
+    }
 
-        ++reservationStationsDataIndex;
+    baseIndex = baseIndex + LOAD_RS;
+
+    for (int i = 0; i < STORE_RS; ++i) {
+        item(baseIndex + i, 0)->setText(QString("%1").arg(QChar(store_unit.rs[i].busy)));
+        item(baseIndex + i, 1)->setText(displayOpCode(store_unit.rs[i].iOpcode));
+        item(baseIndex + i, 2)->setText(QString("%1").arg(store_unit.rs[i].reg_vj));
+        item(baseIndex + i, 3)->setText(QString("%1").arg(store_unit.rs[i].reg_vk));
+        item(baseIndex + i, 4)->setText(QString("%1").arg(store_unit.rs[i].reg_qj->fRegValue));
+        item(baseIndex + i, 5)->setText(QString("%1").arg(store_unit.rs[i].reg_qk->fRegValue));
+        item(baseIndex + i, 6)->setText(QString("%1").arg(store_unit.rs[i].dest->fRegValue));
+    }
+
+    baseIndex = baseIndex + STORE_RS;
+
+    for (int i = 0; i < INTEGER_RS; ++i) {
+        item(baseIndex + i, 0)->setText(QString("%1").arg(QChar(int_unit.rs[i].busy)));
+        item(baseIndex + i, 1)->setText(displayOpCode(int_unit.rs[i].iOpcode));
+        item(baseIndex + i, 2)->setText(QString("%1").arg(int_unit.rs[i].reg_vj));
+        item(baseIndex + i, 3)->setText(QString("%1").arg(int_unit.rs[i].reg_vk));
+        item(baseIndex + i, 4)->setText(QString("%1").arg(int_unit.rs[i].reg_qj->fRegValue));
+        item(baseIndex + i, 5)->setText(QString("%1").arg(int_unit.rs[i].reg_qk->fRegValue));
+        item(baseIndex + i, 6)->setText(QString("%1").arg(int_unit.rs[i].dest->fRegValue));
+    }
+
+    baseIndex = baseIndex + INTEGER_RS;
+
+    for (int i = 0; i < FP_ADD_RS; ++i) {
+        item(baseIndex + i, 0)->setText(QString("%1").arg(QChar(fp_add_unit.rs[i].busy)));
+        item(baseIndex + i, 1)->setText(displayOpCode(fp_add_unit.rs[i].iOpcode));
+        item(baseIndex + i, 2)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_vj));
+        item(baseIndex + i, 3)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_vk));
+        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qj->fRegValue));
+        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_add_unit.rs[i].reg_qk->fRegValue));
+        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_add_unit.rs[i].dest->fRegValue));
+    }
+
+    baseIndex = baseIndex + FP_ADD_RS;
+
+    for (int i = 0; i < FP_MULT_RS; ++i) {
+        item(baseIndex + i, 0)->setText(QString("%1").arg(QChar(fp_mult_unit.rs[i].busy)));
+        item(baseIndex + i, 1)->setText(displayOpCode(fp_mult_unit.rs[i].iOpcode));
+        item(baseIndex + i, 2)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_vj));
+        item(baseIndex + i, 3)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_vk));
+        item(baseIndex + i, 4)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qj->fRegValue));
+        item(baseIndex + i, 5)->setText(QString("%1").arg(fp_mult_unit.rs[i].reg_qk->fRegValue));
+        item(baseIndex + i, 6)->setText(QString("%1").arg(fp_mult_unit.rs[i].dest->fRegValue));
+    }
+}
+
+QString ReservationStationsViewer::displayOpCode(int iOpcode)
+{
+    switch (iOpcode) {     // Employing instrType for limited opcode name selection
+    case 0:
+        return QString("ADD");
+        break;
+    case 1:
+        return QString("SUB");
+        break;
+    case 2:
+        return QString("MUL");
+        break;
+    case 3:
+        return QString("DIV");
+        break;
+    default:
+        return QString(" ");
+        break;
     }
 }

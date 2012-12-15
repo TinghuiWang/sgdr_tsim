@@ -15,6 +15,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "reorderbufferviewer.h"
 
+#include "glo.h"
+#include "rob.h"
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      ReorderBufferViewer Class Constructor                                                                                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -68,36 +71,12 @@ ReorderBufferViewer::ReorderBufferViewer(QWidget *parent) :
  *      Viewer Update Method                                                                                                   *
  *  Displays ROB table fields                                                                                                  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void ReorderBufferViewer::updateViewer(ReorderBufferData *reorderBufferData)
+void ReorderBufferViewer::updateViewer2()
 {
-    ReorderBufferData *reorderBufferDataIndex = reorderBufferData;  // ROB data structure array index
-    for (int i = 0; i < rowCount(); ++i) {  // Update iteration loop
-        switch (reorderBufferDataIndex->instruction) {  // Instruction opcode update employs instrType to randomly select
-        case ADD:                                       //  between a limited amount of opcode strings
-            item(i, 0)->setText(QString("ADD"));
-            break;
-        case SUB:
-            item(i, 0)->setText(QString("SUB"));
-            break;
-        case MUL:
-            item(i, 0)->setText(QString("MUL"));
-            break;
-        case DIV:
-            item(i, 0)->setText(QString("DIV"));
-            break;
-        default:
-            break;
+    for (int i = 0; i < NR_THREAD; ++i) {
+        for (int j = 0; j < NR_ROB_ENT; ++j) {
+            item(NR_ROB_ENT * i + j, 0)->setText(QString("%1").arg(rob_tab[i].arROB[j].pInst->iOpcode, 8, 16, QChar('0')).toUpper());
+            item(NR_ROB_ENT * i + j, 2)->setText(QString("%1").arg(rob_tab[i].arROB[j].iRegValue, 8, 16, QChar('0')).toUpper());
         }
-
-        item(i, 1)->setText(QString("%1").arg(reorderBufferDataIndex->destination));    // Destination register name update
-
-        item(i, 2)->setText(QString("%1").arg(reorderBufferDataIndex->value, 8, 16, QChar('0')).toUpper()); // Write value
-
-        if (reorderBufferDataIndex->done)       // Boolean done flag update
-            item(i, 3)->setText(QString("Y"));
-        else
-            item(i, 3)->setText(QString("N"));
-
-        ++reorderBufferDataIndex;
     }
 }

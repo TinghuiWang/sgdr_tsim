@@ -23,6 +23,14 @@
 #include "registerfileviewer.h"
 #include "memoryviewer.h"
 
+#include "config.h"
+#include "fu.h"
+#include "fu_p.h"
+#include "init.h"
+#include "rob.h"
+#include "rob_p.h"
+#include "stdio.h"
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      MainWindow Class Constructor                                                                                           *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -59,13 +67,16 @@ MainWindow::MainWindow(QWidget *parent) :
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      *  Main menu description                                                                                                  *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    openAction = new QAction(tr("&Open"), this);            // Option not implemented yet: intended to open assembler code
-                                                            //  text and run parser
+    openAsmAction = new QAction(tr("Open ASM File..."), this);
+    openFloatRegAction = new QAction(tr("Open FP Register File..."), this);
+    openIntRegAction = new QAction(tr("Open Integer Register File..."), this);
     startAction = new QAction(tr("&Start"), this);          // Start processing: it basically enables the timer
     stopAction = new QAction(tr("&Stop"), this);            // Stop processing: disables the timer
 
     fileMenu = menuBar()->addMenu(tr("&File"));             // File menu only contains the Open command so far
-    fileMenu->addAction(openAction);
+    fileMenu->addAction(openAsmAction);
+    fileMenu->addAction(openFloatRegAction);
+    fileMenu->addAction(openIntRegAction);
 
     processingMenu = menuBar()->addMenu(tr("&Processing")); // Processing menu contains Start and Stop commands
     processingMenu->addAction(startAction);
@@ -78,22 +89,41 @@ MainWindow::MainWindow(QWidget *parent) :
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      *  Signal-slot bindings                                                                                                   *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));       // Open commands shows Open File dialog
+    connect(openAsmAction, SIGNAL(triggered()), this, SLOT(openAsmFile()));       // Open commands shows Open File dialog
+    connect(openFloatRegAction, SIGNAL(triggered()), this, SLOT(openFloatRegFile()));       // Open commands shows Open File dialog
+    connect(openIntRegAction, SIGNAL(triggered()), this, SLOT(openIntRegFile()));       // Open commands shows Open File dialog
 
     connect(startAction, SIGNAL(triggered()), mainTimer, SLOT(start()));    // Start command triggers timer operation
     connect(stopAction, SIGNAL(triggered()), mainTimer, SLOT(stop()));      // Stop command stops timer
+    connect(this, SIGNAL(endProgram()), mainTimer, SLOT(stop()));      // Stop command stops timer
 
     connect(mainTimer, SIGNAL(timeout()), this, SLOT(cycleProcess()));      // Timer periodically triggers cycleProcess method
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *  Database initialization example                                                                                        *
+     *  Real program initialization                                                                                            *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    memoryData = (MemoryData *)malloc(10000);                           // Memory data structure
-    registerFileData = (RegisterFileData *)malloc(10000);               // Register array data structure
-    reorderBufferData = (ReorderBufferData *)malloc(10000);             // ROB data structure
-    reservationStationsData = (ReservationStationsData *)malloc(10000); // Reservation stations data structure
+    write_result_counter = 0;
 
-    srand(time(NULL));  // Random generator initializer for databse management example below
+    for (int i = 0; i < I_REG_MAX; i++) {
+        rgiReg[i].index = i;
+    }
+    for (int i = 0; i < FP_REG_MAX; i++) {
+        rgfReg[i].index = i;
+    }
+
+    for (int i = 0; i < NR_THREAD; i++) {
+        PC[i] = 0;
+        fSpeculate[i] = 0;
+        fEOP[i] = 0;
+    }
+
+    init_fu();          // zeros out data struct
+    ROB_Init(rob_tab);  // zeros out data struct
+
+    cycles = 1;
+
+    PC[0] = PC0_INIT_VAL;
+    PC[1] = PC1_INIT_VAL;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -103,122 +133,74 @@ MainWindow::MainWindow(QWidget *parent) :
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MainWindow::cycleProcess()
 {
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *      Memory viewer management example                                                                                   *
-     *  The procedure fills up one new memory location every time cycleProcess is invoked.                                     *
-     *  The memorySize index keeps track of the amount of filled memory locations.                                             *
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    static int memorySize = 0;                          // Memory size index
-    static MemoryData *memoryDataPoint = memoryData;    // Memory data structure index
+    //printf("\n\n**************************** CYCLE=%d | PC=%d ****************************\n\n", cycles, PC);
 
-    memoryDataPoint->address = rand();  // Filling a random address location with
-    memoryDataPoint->value = rand();    // a random value
+    // Update Reservation Station
+    update_rs();
+    // Update ReOrder Buffer
+    update_rob(fpOutResult);
+    ROB_Issue(NR_INSTR_ISSUE, fpOutResult);
+    // Clear Temporary Flgas
+    clear_flags();
+    // Print Debug Message
+    print_reg_status();
+    ROB_print(rob_tab);
+    print_rs_status();
 
-    ++memoryDataPoint;  // Next cycleProcess invokation will point to a new memory location
-    ++memorySize;       //  and size increases by 1
+    registerFileViewer->updateViewer2();
+    reorderBufferViewer->updateViewer2();
+    reservationStationViewer->updateViewer2();
 
-    memoryViewer->updateViewer(memorySize, memoryData); // updateViewer method receives data/size to display at the end
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *      Register file viewer management example                                                                            *
-     *  Random update of all register values at every cycle                                                                    *
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    RegisterFileData *registerFileDataIndex = registerFileData; // Register array data structure
-
-    for (int i = 0; i < 32; ++i) {                      // Register iteration loop
-        registerFileDataIndex->dataFloatProc1 = rand();
-        registerFileDataIndex->dataFixProc1 = rand();
-        registerFileDataIndex->dataFloatProc2 = rand();
-        registerFileDataIndex->dataFixProc2 = rand();
-        ++registerFileDataIndex;
-    }
-
-    registerFileViewer->updateViewer(registerFileData); // updateViewer method receives data to display at the end
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *      Reorder buffer viewer management example                                                                           *
-     *  Random update of all ROB fields at every cycle                                                                         *
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    ReorderBufferData *reorderBufferDataIndex = reorderBufferData;  // ROB data structure index
-    char robStr[10][10];                                            // Auxilliary array for random register name generation
-
-    for (int i = 0; i < 10; ++i) {                                  // ROB update iteration loop
-        reorderBufferDataIndex->instruction = static_cast<instrType>(rand() % 4);   // Instruction opcode random selection
-        if (rand() % 2) {                                                           // Register name random generation
-            sprintf(robStr[i], "R%d", rand() % 64);
-            reorderBufferDataIndex->destination = robStr[i];
-        } else {
-            sprintf(robStr[i], "F%d", rand() % 64);
-            reorderBufferDataIndex->destination = robStr[i];
-        }
-        reorderBufferDataIndex->value = rand();                                     // Register value random generation
-        reorderBufferDataIndex->done = static_cast<bool>(rand() % 2);               // Done flag random selection
-        ++reorderBufferDataIndex;
-    }
-
-    reorderBufferViewer->updateViewer(reorderBufferData);   // updateViewer method receiver generated data structure pointer
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *  Reservation stations viewer management example                                                                         *
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    ReservationStationsData *reservationStationsDataIndex = reservationStationsData;    // Reservation station structure index
-    char rsvStr[8][3][10];                                                              // Auxilliary array for station names
-
-    for (int i = 0; i < 8; ++i) {                               // Reservation station update iteration loop
-        reservationStationsDataIndex->busy = static_cast<bool>(rand() % 2);     // Busy flag random selection
-        reservationStationsDataIndex->op = static_cast<instrType>(rand() % 4);  // Instruction opcode random selection
-        reservationStationsDataIndex->vj = rand();                              // Vj stored value random selection
-        reservationStationsDataIndex->vk = rand();                              // Vk stored value random selection
-        sprintf(rsvStr[i][0], "ROB%d", rand() % 10);                            // Qj buffer random name generation
-        reservationStationsDataIndex->qj = rsvStr[i][0];
-        sprintf(rsvStr[i][1], "ROB%d", rand() % 10);                            // Qk buffer random name generation
-        reservationStationsDataIndex->qk = rsvStr[i][1];
-        if (rand() % 2) {                                                       // Destination register random name generation
-            sprintf(rsvStr[i][2], "R%d", rand() % 64);
-            reservationStationsDataIndex->dest = rsvStr[i][2];
-        } else {
-            sprintf(rsvStr[i][2], "F%d", rand() % 64);
-            reservationStationsDataIndex->dest = rsvStr[i][2];
-        }
-        ++reservationStationsDataIndex;
-    }
-
-    reservationStationViewer->updateViewer(reservationStationsData);
+    // Move on to Next Cycle
+    cycles++;
+    //getc(stdin);
+    if (fEOP[0] == 1 && fEOP[1] == 1)
+        emit endProgram();
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *      openFile Method Description                                                                                            *
  *  This method implement the open file dialog window and reading process; no final char array receiver is declared yet.       *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void MainWindow::openFile()
+void MainWindow::openAsmFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open ASM Code File"), "", tr("ASM Code (*.asm);;All files (*)"));
-    QString line;
 
     if (fileName.isEmpty())
         return;
     else {
-        QFile file(fileName);
+        fpInAsm = fopen(fileName.toStdString().c_str(), "r");
+        get_memory_locations(fpInAsm);
+        fpOutResult = init_outfile(fpInAsm);
+    }
+}
 
-        if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::information(this, tr("Unable to open file"), file.errorString());
-            return;
-        }
+void MainWindow::openFloatRegFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open ASM Code File"), "", tr("ASM Code (*.asm);;All files (*)"));
 
-        QTextStream in(&file);
-
-        do {
-            line = in.readLine();
-        } while (!line.isNull());
+    if (fileName.isEmpty())
+        return;
+    else {
+        fpInRegFP = fopen(fileName.toStdString().c_str(), "r");
     }
 
-    QFileDialog dialog(this);
-    QStringList fileNames;
+    if (fpInRegFP != NULL && fpInRegInt != NULL) {
+        init_registers(fpInRegFP, fpInRegInt);
+    }
+}
 
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilter(tr("Assembler code files (*.asm)"));
+void MainWindow::openIntRegFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open ASM Code File"), "", tr("ASM Code (*.asm);;All files (*)"));
 
-    if (dialog.exec()) {
-        fileNames = dialog.selectedFiles();
+    if (fileName.isEmpty())
+        return;
+    else {
+        fpInRegInt = fopen(fileName.toStdString().c_str(), "r");
+    }
+
+    if (fpInRegFP != NULL && fpInRegInt != NULL) {
+        init_registers(fpInRegFP, fpInRegInt);
     }
 }
