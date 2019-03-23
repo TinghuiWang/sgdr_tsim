@@ -17,7 +17,7 @@ help:
 	@echo ""
 	@echo "Author: Tinghui WANG <twang3@eecs.wsu.edu>"
 	@echo "        Gina Sprint"
-	@echo "        Daniel  "
+	@echo "        Daniel Iparraguirre <daniel.iparraguirre@wsu.edu>"
 	@echo "        Ryan Kim "
 	@echo "-------------------------------------------------------------"
 	@echo ""
